@@ -1,5 +1,7 @@
 # databaser3
 
-Contributors: Johan Gerdin, Andreas Wahlström
-Course: TDA357
-Group Number: 3
+<p>
+<bold>Contributors</bold>: Johan Gerdin, Andreas Wahlström <br>
+<bold>Course</bold>: TDA357 <br>
+<bold>Group Number</bold>: 3 <br>
+</p>
