@@ -1,0 +1,53 @@
+Departments(_name_,abbreviation)
+	abbreviation unique
+	
+Programmes(_name_,abbreviation)
+HostedBy(_department_,_programme_)
+	_department_ -> Departments._name_
+	_programme_  -> Programmes._name_
+
+Branches(_programme_,name)
+	_programme_ -> Programmes._name_
+	(_programme_,name) unique
+
+Students(_NIN_,name,loginID)
+	loginID unique
+	
+BelongsTo(_student_,_programme_)
+	_student_ -> Students._NIN_
+	_programme_ -> Programmes._name_
+Selected(_student_,_branch_)
+	_student_ -> Students._NIN_
+	_branch_  -> Branches._programme_
+
+Courses(_code_,name,credits,#students)
+ClassifiedCourses(_course_,classification)
+	_course_ -> Courses._code_
+
+Prerequisite(_course_,_prerequisite_)
+	_course_       -> Courses._code_
+	_prerequisite_ -> Courses._code_
+
+GivenBy(_department_,_course_)
+	_department_ -> Departments._name_
+	_course_     -> Courses._code_
+	
+ProgrammeMandatory(_programme_,_course_)
+	_programme_ -> Programmes._name_
+	_course_ -> Courses._code_
+BranchMandatory(_branch_,_course_)
+	_branch_  -> Branches._programme_
+	_course_ -> Courses._code_
+Recommended(_branch_,_course_)
+	_branch_  -> Branches._programme_
+	_course_ -> Courses._code_
+
+Registered(_student_,_course_)
+	_student_ -> Students._NIN_
+	_course_ -> Courses._code_
+Finished(_student_,_course_)
+	_student_ -> Students._NIN_
+	_course_ -> Courses._code_
+WaitingFor(_course_,_student_)
+	_course_ -> Courses._code_
+	_student_ -> Students._NIN_
