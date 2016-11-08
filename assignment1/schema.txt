@@ -6,31 +6,26 @@ HostedBy(_department_,_programme_)
 	_department_ -> Departments._name_
 	_programme_  -> Programmes._name_
 
-Branches(_programme_,name)
-	_programme_ -> Programmes._name_
-	(_programme_,name) unique
-
-Students(_NIN_,name,loginID)
+Branches(_id_,name,programme)
+	programme -> Programmes._name_
+	(name,programme) unique
+	
+Students(_NIN_,name,loginID,programme)
+	programme -> Programmes._name_
 	loginID unique
 	
-BelongsTo(_student_,_programme_)
+Selected(_student_,branch)
 	_student_ -> Students._NIN_
-	_programme_ -> Programmes._name_
-Selected(_student_,_branch_)
-	_student_ -> Students._NIN_
-	_branch_  -> Branches._programme_
+	branch    -> Branches._programme_
 
-Courses(_code_,name,credits,#students)
+Courses(_code_,name,credits,#students,department)
+	department -> Departments._name_
 ClassifiedCourses(_course_,classification)
 	_course_ -> Courses._code_
-
-Prerequisite(_course_,_prerequisite_)
-	_course_       -> Courses._code_
-	_prerequisite_ -> Courses._code_
-
-GivenBy(_department_,_course_)
-	_department_ -> Departments._name_
-	_course_     -> Courses._code_
+	
+Prerequisite(_prerequisite_,to)
+	prerequisite -> Courses._code_
+	to           -> Courses._code_
 	
 ProgrammeMandatory(_programme_,_course_)
 	_programme_ -> Programmes._name_
@@ -48,6 +43,12 @@ Registered(_student_,_course_)
 Finished(_student_,_course_)
 	_student_ -> Students._NIN_
 	_course_ -> Courses._code_
-WaitingFor(_course_,_student_)
-	_course_ -> Courses._code_
+	
+WaitingList(_id_,date)
+HasA(_id_,course)
+	_id_   -> WaitingList._id_
+	course -> Courses._code_
+	course unique
+WaitingOn(_id_,_student_)
+	_id_      -> WaitingList._id_
 	_student_ -> Students._NIN_
