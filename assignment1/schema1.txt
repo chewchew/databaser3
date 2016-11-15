@@ -1,0 +1,57 @@
+Departments(_name_,abbreviation)
+	abbreviation unique
+	
+Programmes(_name_,abbreviation)
+HostedBy(_department_,_programme_)
+	department -> Departments.name
+	programme  -> Programmes.name
+
+Branches(_id_,name,programme)
+	programme -> Programmes.name
+	(name,programme) unique
+	
+Students(_NIN_,name,loginID,programme)
+	programme -> Programmes.name
+	loginID unique
+	
+Selected(_student_,branch)
+	student -> Students.NIN
+	branch  -> Branches.programme
+
+Courses(_code_,name,credits,#students,department)
+	department -> Departments.name
+ClassifiedCourses(_course_,classification)
+	course -> Courses.code
+	
+Prerequisite(_prerequisite_,_to_)
+	prerequisite -> Courses.code
+	to           -> Courses.code
+	prerequisite != to
+	!((prerequisite,to) && (to,prerequisite))
+	
+	
+ProgrammeMandatory(_programme_,_course_)
+	programme -> Programmes.name
+	course -> Courses.code
+BranchMandatory(_branch_,_course_)
+	branch  -> Branches.programme
+	course -> Courses.code
+Recommended(_branch_,_course_)
+	branch  -> Branches.programme
+	course -> Courses.code
+
+Registered(_student_,_course_)
+	student -> Students.NIN
+	course -> Courses.code
+Finished(_student_,_course_)
+	student -> Students.NIN
+	course -> Courses.code
+	
+WaitingList(_id_,date)
+HasA(_id_,course)
+	id   -> WaitingList.id
+	course -> Courses.code
+	course unique
+WaitingOn(_id_,_student_)
+	id      -> WaitingList.id
+	student -> Students.NIN
