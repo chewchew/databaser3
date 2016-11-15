@@ -6,17 +6,13 @@ HostedBy(_department_,_programme_)
 	department -> Departments.name
 	programme  -> Programmes.name
 
-Branches(_id_,name,programme)
+Branches(_name_,_programme_)
 	programme -> Programmes.name
-	(name,programme) unique
 	
-Students(_NIN_,name,loginID,programme)
-	programme -> Programmes.name
+Students(_NIN_,name,loginID,branch,programme)
+	(branch,programme) -> Branches.(name,programme)
 	loginID unique
-	
-Selected(_student_,branch)
-	student -> Students.NIN
-	branch  -> Branches.programme
+	branch nullable
 
 Courses(_code_,name,credits,#students,department)
 	department -> Departments.name
@@ -33,12 +29,12 @@ Prerequisite(_prerequisite_,_to_)
 ProgrammeMandatory(_programme_,_course_)
 	programme -> Programmes.name
 	course -> Courses.code
-BranchMandatory(_branch_,_course_)
-	branch  -> Branches.programme
-	course -> Courses.code
-Recommended(_branch_,_course_)
-	branch  -> Branches.programme
-	course -> Courses.code
+BranchMandatory(_branch_,_programme_,_course_)
+	(branch,programme)  -> Branches.(name,programme)
+	course 				-> Courses.code
+Recommended(_branch_,_programme_,_course_)
+	(branch,programme) -> Branches.(name,programme)
+	course 			   -> Courses.code
 
 Registered(_student_,_course_)
 	student -> Students.NIN

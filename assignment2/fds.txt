@@ -1,0 +1,7 @@
+deptartment -> abbrev
+
+programme -> programme.abbrev
+
+programme,branch -> branch.name
+
+course.code -> course.name, course.credits, course.#students, department
