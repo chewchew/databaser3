@@ -9,23 +9,35 @@ HostedBy(_department_,_programme_)
 Branches(_name_,_programme_)
 	programme -> Programmes.name
 	
-Students(_NIN_,name,loginID,branch,programme)
-	(branch,programme) -> Branches.(name,programme)
+Students(_NIN_,name,loginID,programme)
+	programme -> Programme.name
 	loginID unique
-	branch nullable
 
-Courses(_code_,name,credits,#students,department)
+SelectedBranch(_student_,branch,programme)
+	student -> Students.NIN
+	(branch,programme) -> Branches.(name,programme)
+	condition: student.programme = programme
+	
+Courses(_code_,name,credits,department)
 	department -> Departments.name
-ClassifiedCourses(_course_,classification)
+LimitedCourse(_course_,#students)
 	course -> Courses.code
+	
+Classification(_class_)
+
+Has(_course_,_classification_)
+	course -> Courses.code
+	classification -> Classification.class
+WaitingOn(_course_,_student_,date)
+	course  -> LimitedCourse.course
+	student -> Students.NIN
 	
 Prerequisite(_prerequisite_,_to_)
 	prerequisite -> Courses.code
 	to           -> Courses.code
 	prerequisite != to
 	!((prerequisite,to) && (to,prerequisite))
-	
-	
+		
 ProgrammeMandatory(_programme_,_course_)
 	programme -> Programmes.name
 	course -> Courses.code
@@ -42,12 +54,3 @@ Registered(_student_,_course_)
 Finished(_student_,_course_)
 	student -> Students.NIN
 	course -> Courses.code
-	
-WaitingList(_id_,date)
-HasA(_id_,course)
-	id   -> WaitingList.id
-	course -> Courses.code
-	course unique
-WaitingOn(_id_,_student_)
-	id      -> WaitingList.id
-	student -> Students.NIN
