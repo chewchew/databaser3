@@ -9,10 +9,11 @@ HostedBy(_department_,_programme_)
 Branches(_name_,_programme_)
 	programme -> Programmes.name
 	
-Students(_NIN_,name,loginID,programme)
-	programme -> Programme.name
+Students(_NIN_,name,loginID,branch,programme)
+	branch,programme -> Branches.(name,programme)
 	loginID unique
-
+	branch nullable
+	
 SelectedBranch(_student_,branch,programme)
 	student -> Students.NIN
 	(branch,programme) -> Branches.(name,programme)
@@ -51,6 +52,6 @@ Recommended(_branch_,_programme_,_course_)
 Registered(_student_,_course_)
 	student -> Students.NIN
 	course -> Courses.code
-Finished(_student_,_course_)
+Finished(_student_,_course_,grade)
 	student -> Students.NIN
 	course -> Courses.code
