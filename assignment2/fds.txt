@@ -1,8 +1,29 @@
-deptartment -> abbrev
+Department(name,abbreviation)
+	name -> abbreviation
+	abbreviation -> name
 
-programme -> programme.abbrev
+Programmes(name,abbreviation)
+	name -> abbreviation
 
-course.code -> course.name, course.credits, course.#students, department
+Courses(code,name,credits,department)
+	code -> name
+	code -> credits
+	code -> department
 
-student -> programme,branch
+LimitedCourses(code,limit)
+	code -> limit
+	(code references Courses.code)
 
+Students(NIN,name,loginID,programme1,branch,programme2)
+	NIN,loginID -> name
+	NIN,loginID -> programme
+	NIN,loginID -> branch
+	NIN -> loginID
+	loginID -> NIN
+	branch -> programme1
+
+WaitingOn(code,NIN,date)
+	code,NIN -> date
+
+Finished(code,NIN,grade)
+	code,NIN -> grade

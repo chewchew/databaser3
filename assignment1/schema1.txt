@@ -14,11 +14,6 @@ Students(_NIN_,name,loginID,branch,programme)
 	loginID unique
 	branch nullable
 	
-SelectedBranch(_student_,branch,programme)
-	student -> Students.NIN
-	(branch,programme) -> Branches.(name,programme)
-	condition: student.programme = programme
-	
 Courses(_code_,name,credits,department)
 	department -> Departments.name
 LimitedCourse(_course_,#students)
