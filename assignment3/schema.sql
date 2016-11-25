@@ -147,10 +147,13 @@ CREATE TABLE Finished (
 --	FOR EACH ROW
 --	EXECUTE PROCEDURE updateBranchChildren();
 
-CREATE Procedure updateProgrammeChildren()
+CREATE Procedure testData AS
+DECLARE iter INT = 0;
+GO
 BEGIN
-	WHILE DO
-	
+	WHILE iter < 10 DO
+		INSERT INTO Departments (name,abbreviation) VALUES ('Department' + CAST(iter AS TEXT),'D' + CAST(iter AS TEXT));
+		SET iter = iter + 1;
 	END WHILE
 END
 
