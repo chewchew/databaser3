@@ -8,11 +8,11 @@ HostedBy(_department_,_programme_)
 
 Branches(_name_,_programme_)
 	programme -> Programmes.name
-	
+
 Students(_NIN_,name,loginID,branch,programme)
-	branch,programme -> Branches.(name,programme)
+	branch -> Branches.name
+	programme -> Programmes.name
 	loginID unique
-	branch nullable
 	
 Courses(_code_,name,credits,department)
 	department -> Departments.name
