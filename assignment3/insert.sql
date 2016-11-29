@@ -73,36 +73,6 @@ INSERT INTO Students (NIN,name,loginID,branch,programme) VALUES ('9008150013','N
 INSERT INTO Students (NIN,name,loginID,branch,programme) VALUES ('9008150014','Name14','loginId14','Branch2','Programme2');
 INSERT INTO Students (NIN,name,loginID,branch,programme) VALUES ('9008150015','Name15','loginId15','Branch1','Programme1');
 
--- Student information
-
--- Program 1 mandatory
--- TDA011, limited course
--- TDA016, unlimited
---
--- Program 1, branch 1 mandatory
--- TDA001, limited course
--- TDA014, limited
--- TDA010, unlimited
-
--- student 1, ready for graduation
-INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA011','4');
-INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA016','3');
-INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA001','5');
-INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA014','3');
-INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA010','5');
-INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA007','4');
-
--- student 15, registred on mand course TDA010, waiting on TDA008
-INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA011','U');
-INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA016','3');
-INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA001','5');
-INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA014','3');
---INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA010','5');
-INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA007','4');
-
-INSERT INTO Registred (student, course) VALUES ('9008150015', 'TDA010')
-INSERT INTO WaitingOn (student, course, date) VALUES ('9008150015', 'TDA008','3/8/15 00:00:00')
-
 -- Courses
 INSERT INTO Courses (code,name,credits,department) VALUES ('TDA001','Course1',7.5,'Department1');
 INSERT INTO Courses (code,name,credits,department) VALUES ('TDA002','Course2',7.5,'Department2');
@@ -138,6 +108,42 @@ INSERT INTO LimitedCourses (code,studentLimit) VALUES ('TDA013',104);
 INSERT INTO LimitedCourses (code,studentLimit) VALUES ('TDA014',105);
 --INSERT INTO LimitedCourses (code,studentLimit) VALUES ('TDA015',110);
 INSERT INTO LimitedCourses (code,studentLimit) VALUES ('TDA016',120);
+
+INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA001','TDA003');
+INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA001','TDA004');
+INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA003','TDA006');
+INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA004','TDA006');
+INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA014','TDA003');
+
+-- Student information
+
+-- Program 1 mandatory
+-- TDA011, limited course
+-- TDA016, unlimited
+--
+-- Program 1, branch 1 mandatory
+-- TDA001, limited course
+-- TDA014, limited
+-- TDA010, unlimited
+
+-- student 1, ready for graduation
+INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA011','4');
+INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA016','3');
+INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA001','5');
+INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA014','3');
+INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA010','5');
+INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA007','4');
+
+-- student 15, registred on mand course TDA010, waiting on TDA008
+INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA011','U');
+INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA016','3');
+INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA001','5');
+INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA014','3');
+--INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA010','5');
+INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA007','4');
+
+INSERT INTO Registered (student, course) VALUES ('9008150015', 'TDA010');
+INSERT INTO WaitingOn (student, course, date) VALUES ('9008150015', 'TDA008','3/8/15 00:00:00');
 
 -- Mandatory courses for programmes
 INSERT INTO ProgrammeMandatory (programme, course) VALUES ('Programme1', 'TDA011');
@@ -188,7 +194,6 @@ INSERT INTO HasClass (course,class) VALUES ('TDA001','Classification4');
 INSERT INTO HasClass (course,class) VALUES ('TDA001','Classification5');
 INSERT INTO HasClass (course,class) VALUES ('TDA013','Classification6');
 INSERT INTO HasClass (course,class) VALUES ('TDA005','Classification7');
-INSERT INTO HasClass (course,class) VALUES ('TDA015','Classification8');
 
 
 SELECT * FROM Departments;

@@ -30,21 +30,8 @@ CREATE VIEW NotHostingDepartmentProgramme AS
 		FROM NotHosting NATURAL JOIN HostedBy 
 			JOIN Programmes ON HostedBy.programme = Programmes.name;
 
---.print "========================================"
---.print "  HostingDepartmentProgramme"
---.print "========================================"
---SELECT * FROM HostingDepartmentProgramme;
---.print "========================================"
---.print "  NotHostingDepartmentProgramme"
---.print "========================================"
---SELECT * FROM NotHostingDepartmentProgramme;
-
 DROP VIEW IF EXISTS StudentsAttendingProgramme;
 CREATE VIEW StudentsAttendingProgramme AS
 	SELECT Students.name AS Student,Programmes.name AS Programme FROM
 		Students JOIN Programmes ON Students.programme = Programmes.name;
 
---.print "========================================"
---.print "  StudentsAttendingProgramme"
---.print "========================================"
---SELECT * FROM StudentsAttendingProgramme;

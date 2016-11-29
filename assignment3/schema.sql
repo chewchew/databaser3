@@ -1,19 +1,21 @@
-DROP TABLE IF EXISTS Departments;
-DROP TABLE IF EXISTS Programmes;
-DROP TABLE IF EXISTS HostedBy;
-DROP TABLE IF EXISTS Branches;
-DROP TABLE IF EXISTS Students;
-DROP TABLE IF EXISTS Courses;
-DROP TABLE IF EXISTS LimitedCourses;
-DROP TABLE IF EXISTS Classifications;
-DROP TABLE IF EXISTS HasClass;
-DROP TABLE IF EXISTS WaitingOn;
-DROP TABLE IF EXISTS Prerequisite;
-DROP TABLE IF EXISTS ProgrammeMandatory;
-DROP TABLE IF EXISTS BranchMandatory;
-DROP TABLE IF EXISTS Recommended;
-DROP TABLE IF EXISTS Registered;
+-- in backwards order since psql complains
+-- about tables depending on other tables
 DROP TABLE IF EXISTS Finished;
+DROP TABLE IF EXISTS Registered;
+DROP TABLE IF EXISTS Recommended;
+DROP TABLE IF EXISTS BranchMandatory;
+DROP TABLE IF EXISTS ProgrammeMandatory;
+DROP TABLE IF EXISTS Prerequisite;
+DROP TABLE IF EXISTS WaitingOn;
+DROP TABLE IF EXISTS HasClass;
+DROP TABLE IF EXISTS Classifications;
+DROP TABLE IF EXISTS LimitedCourses;
+DROP TABLE IF EXISTS Courses;
+DROP TABLE IF EXISTS Students;
+DROP TABLE IF EXISTS Branches;
+DROP TABLE IF EXISTS HostedBy;
+DROP TABLE IF EXISTS Programmes;
+DROP TABLE IF EXISTS Departments;
 
 CREATE TABLE Departments (
 	name			TEXT	NOT NULL PRIMARY KEY,
@@ -28,14 +30,14 @@ CREATE TABLE Programmes (
 CREATE TABLE HostedBy (
 	programme 		TEXT 	NOT NULL,
 	department 		TEXT 	NOT NULL REFERENCES Departments(name),
-	FOREIGN KEY (programme) REFERENCES Programmes(name) ,--ON DELETE CASCADE,
+	FOREIGN KEY (programme) REFERENCES Programmes(name),
 	PRIMARY KEY (programme,department)
 );
 
 CREATE TABLE Branches (
 	name			TEXT	NOT NULL,
 	programme 		TEXT 	NOT NULL,
-	FOREIGN KEY (programme) REFERENCES Programmes(name) ,--ON DELETE CASCADE,
+	FOREIGN KEY (programme) REFERENCES Programmes(name),
 	PRIMARY KEY (name,programme)
 );
 
@@ -44,9 +46,26 @@ CREATE TABLE Students (
 	name 			TEXT 		NOT NULL,
 	loginID 		TEXT 		NOT NULL UNIQUE,
 	branch 			TEXT,
-	programme 		TEXT,
-	FOREIGN KEY (branch,programme) REFERENCES Branches(name,programme)
+	programme 		TEXT		NOT NULL REFERENCES Programmes(name)
 );
+
+CREATE OR REPLACE FUNCTION checkBranchInProgramme() 
+RETURNS TRIGGER AS $$
+BEGIN
+	IF NEW.branch IS NULL THEN
+		RETURN NEW;
+	ELSEIF NEW.branch IN (SELECT Branches.name FROM Branches WHERE Branches.programme = NEW.programme) THEN
+		RETURN NEW;
+	ELSE
+		RAISE 'Branch not in programme -> %', NEW.branch;
+	END IF;
+
+	RETURN new;
+END
+$$ LANGUAGE 'plpgsql';
+
+CREATE TRIGGER branchInProgramme BEFORE INSERT ON Students
+	FOR EACH ROW EXECUTE PROCEDURE checkBranchInProgramme();
 
 CREATE TABLE Courses (
 	code		CHAR(6) NOT NULL PRIMARY KEY,
@@ -84,6 +103,15 @@ CREATE TABLE Prerequisite (
 	-- REMEMBER assertion for (c1 to c2 to c1)... 
 );
 
+-- something like this? (this does not work)
+-- psql has very limited function functionality it seems..
+CREATE OR REPLACE FUNCTION checkCycle(fromEntry VARCHAR,toEntry VARCHAR) RETURNS 
+BOOLEAN AS $$
+BEGIN
+	RETURN fromEntry IN (SELECT toCourse FROM Prerequisite WHERE toCourse = toEntry);
+END
+$$ LANGUAGE 'plpgsql';
+
 CREATE TABLE ProgrammeMandatory (
 	programme	TEXT 	NOT NULL REFERENCES Programmes(name),
 	course		CHAR(6) NOT NULL REFERENCES Courses(code),
@@ -118,43 +146,3 @@ CREATE TABLE Finished (
 	grade	CHAR(1) 	NOT NULL CHECK(grade IN ('U', '3', '4', '5')),
 	PRIMARY KEY (student, course)
 );
-
----- Triggers --
---CREATE FUNCTION updateProgrammeChildren() RETURNS
---TRIGGER AS $$
---BEGIN
---	DELETE FROM Branches WHERE Branches.programme = OLD.name;
---	UPDATE Students SET programme = NULL WHERE Students.programme = OLD.name;
---	RETURN OLD;
---END
---$$ LANGUAGE 'plpgsql';
-
---CREATE TRIGGER ProgrammeDeleted
---	BEFORE DELETE ON Programmes
---	FOR EACH ROW
---	EXECUTE PROCEDURE updateProgrammeChildren();
-
---CREATE FUNCTION updateBranchChildren() RETURNS
---TRIGGER AS $$
---BEGIN
---	UPDATE Students SET branch = NULL WHERE Students.branch = OLD.name;
---	RETURN OLD;
---END
---$$ LANGUAGE 'plpgsql';
-
---CREATE TRIGGER BranchDeleted
---	BEFORE DELETE ON Branches
---	FOR EACH ROW
---	EXECUTE PROCEDURE updateBranchChildren();
-
-/*CREATE Procedure testData AS
-DECLARE iter INT = 0;
-GO
-BEGIN
-	WHILE iter < 10 DO
-		INSERT INTO Departments (name,abbreviation) VALUES ('Department' + CAST(iter AS TEXT),'D' + CAST(iter AS TEXT));
-		SET iter = iter + 1;
-	END WHILE
-END*/
-
-
