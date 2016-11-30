@@ -57,10 +57,10 @@ BEGIN
 	ELSEIF NEW.branch IN (SELECT Branches.name FROM Branches WHERE Branches.programme = NEW.programme) THEN
 		RETURN NEW;
 	ELSE
-		RAISE 'Branch not in programme -> %', NEW.branch;
+		RAISE 'Branch -> % not in programme -> %', NEW.branch,New.programme;
 	END IF;
 
-	RETURN new;
+	RETURN NEW;
 END
 $$ LANGUAGE 'plpgsql';
 
@@ -104,13 +104,27 @@ CREATE TABLE Prerequisite (
 );
 
 -- something like this? (this does not work)
--- psql has very limited function functionality it seems..
-CREATE OR REPLACE FUNCTION checkCycle(fromEntry VARCHAR,toEntry VARCHAR) RETURNS 
-BOOLEAN AS $$
+-- some join operation where left-most column shouldnt
+-- match any of the right-most column?
+CREATE OR REPLACE FUNCTION checkCycle()
+RETURNS TRIGGER AS $$
+DECLARE
+	_prerequisite CHAR(6);
+	_toCourse CHAR(6);
 BEGIN
-	RETURN fromEntry IN (SELECT toCourse FROM Prerequisite WHERE toCourse = toEntry);
+	SELECT * INTO _prerequisite,_toCourse FROM Prerequisite WHERE NEW.toCourse = Prerequisite.prerequisite;
+	WHILE _toCourse IS NOT NULL LOOP
+		IF _prerequisite = NEW.prerequisite THEN
+			RAISE 'Cycle detected: % -> %',NEW.prerequisite,_prerequisite;
+		END IF;
+		SELECT * INTO _prerequisite,_toCourse FROM Prerequisite WHERE _toCourse = Prerequisite.prerequisite;
+	END LOOP;
+	RETURN NEW;
 END
 $$ LANGUAGE 'plpgsql';
+
+CREATE TRIGGER cycle BEFORE INSERT ON Prerequisite
+	FOR EACH ROW EXECUTE PROCEDURE checkCycle();
 
 CREATE TABLE ProgrammeMandatory (
 	programme	TEXT 	NOT NULL REFERENCES Programmes(name),

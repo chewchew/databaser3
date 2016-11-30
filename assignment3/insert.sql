@@ -72,6 +72,8 @@ INSERT INTO Students (NIN,name,loginID,branch,programme) VALUES ('9008150012','N
 INSERT INTO Students (NIN,name,loginID,branch,programme) VALUES ('9008150013','Name13','loginId13','Branch5','Programme1');
 INSERT INTO Students (NIN,name,loginID,branch,programme) VALUES ('9008150014','Name14','loginId14','Branch2','Programme2');
 INSERT INTO Students (NIN,name,loginID,branch,programme) VALUES ('9008150015','Name15','loginId15','Branch1','Programme1');
+-- should fail
+INSERT INTO Students (NIN,name,loginID,branch,programme) VALUES ('9008150015','Name16','loginId16','Branch2','Programme1');
 
 -- Courses
 INSERT INTO Courses (code,name,credits,department) VALUES ('TDA001','Course1',7.5,'Department1');
@@ -114,6 +116,8 @@ INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA001','TDA004');
 INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA003','TDA006');
 INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA004','TDA006');
 INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA014','TDA003');
+-- should fail
+INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA006','TDA001');
 
 -- Student information
 
