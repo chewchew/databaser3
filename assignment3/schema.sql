@@ -58,9 +58,7 @@ CREATE TABLE ChosenBranch (
 CREATE OR REPLACE FUNCTION checkBranchInProgramme() 
 RETURNS TRIGGER AS $$
 BEGIN
-	IF NEW.branch IS NULL THEN
-		RETURN NEW;
-	ELSEIF NEW.branch IN (SELECT Branches.name FROM Branches WHERE Branches.programme = NEW.programme) THEN
+	IF NEW.branch IN (SELECT Branches.name FROM Branches WHERE Branches.programme = NEW.programme) THEN
 		RETURN NEW;
 	ELSE
 		RAISE 'Branch -> % not in programme -> %', NEW.branch,New.programme;
@@ -70,7 +68,7 @@ BEGIN
 END
 $$ LANGUAGE 'plpgsql';
 
-CREATE TRIGGER branchInProgramme BEFORE INSERT ON Students
+CREATE TRIGGER branchInProgramme BEFORE INSERT ON ChosenBranch
 	FOR EACH ROW EXECUTE PROCEDURE checkBranchInProgramme();
 
 CREATE TABLE Courses (
