@@ -117,11 +117,12 @@ DECLARE
 	_toCourse CHAR(6);
 BEGIN
 	CREATE TEMP TABLE tmp AS SELECT * FROM Prerequisite WHERE NEW.toCourse = Prerequisite.prerequisite;
-	WHILE SELECT count(*) FROM (SELECT 1 FROM tmp LIMIT 1 WHERE tmp.toCourse = Prerequisite.prerequisite) > 0 LOOP
-		CREATE TEMP TABLE tmp AS SELECT * FROM tmp, Prerequisite WHERE tmp.toCourse = Prerequisite.prerequisite;
+	--WHILE (SELECT count(*) FROM (SELECT 1 FROM tmp LIMIT 1 WHERE tmp.toCourse = Prerequisite.prerequisite)) > 0 LOOP
+	WHILE EXISTS (SELECT * FROM tmp NATURAL JOIN Prerequisite WHERE tmp.toCourse = Prerequisite.prerequisite) LOOP
+		CREATE TEMP TABLE tmp AS SELECT * FROM tmp NATURAL JOIN Prerequisite WHERE tmp.toCourse = Prerequisite.prerequisite;
 	END LOOP;
 	
-	IF _prerequisite = IN tmp THEN
+	IF EXISTS (SELECT * FROM tmp WHERE NEW.prerequisite = tmp.prerequisite) THEN
 			RAISE 'Cycle detected: % -> %',NEW.prerequisite,_prerequisite;
 	END IF;
 		
