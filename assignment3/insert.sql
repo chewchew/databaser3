@@ -72,8 +72,6 @@ INSERT INTO Students (NIN,name,loginID,programme) VALUES ('9008150012','Name12',
 INSERT INTO Students (NIN,name,loginID,programme) VALUES ('9008150013','Name13','loginId13','Programme1');
 INSERT INTO Students (NIN,name,loginID,programme) VALUES ('9008150014','Name14','loginId14','Programme2');
 INSERT INTO Students (NIN,name,loginID,programme) VALUES ('9008150015','Name15','loginId15','Programme1');
--- should fail
--- INSERT INTO Students (NIN,name,loginID,programme) VALUES ('9008150015','Name16','loginId16','Branch2','Programme1');
 
 INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150001','Branch1','Programme1');
 INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150002','Branch2','Programme2');
@@ -81,16 +79,16 @@ INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150003','Branch
 INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150004','Branch4','Programme4');
 INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150005','Branch5','Programme5');
 INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150006','Branch6','Programme6');
-INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150006','Branch6','Programme6');
-INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150006','Branch1','Programme7');
-INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150006','Branch2','Programme8');
-INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150006','Branch3','Programme9');
-INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150006','Branch4','Programme10');
-INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150006','Branch5','Programme1');
-INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150006','Branch6','Programme2');
-INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150006','Branch5','Programme1');
-INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150006','Branch2','Programme2');
-INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150006','Branch1','Programme1');
+INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150007','Branch1','Programme7');
+INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150008','Branch2','Programme8');
+INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150009','Branch3','Programme9');
+INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150010','Branch4','Programme10');
+INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150011','Branch5','Programme1');
+INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150012','Branch6','Programme2');
+INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150013','Branch5','Programme1');
+INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150014','Branch2','Programme2');
+-- should fail
+INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150015','Branch2','Programme1');
 
 -- Courses
 INSERT INTO Courses (code,name,credits,department) VALUES ('TDA001','Course1',7.5,'Department1');
