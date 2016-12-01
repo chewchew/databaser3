@@ -37,7 +37,9 @@ CREATE VIEW StudentsAttendingProgramme AS
 		
 -- StudentsFollowing
 -- For all students, their basic information (name etc.), and the programme and branch (if any) they are following.
-
+DROP VIEW IF EXISTS StudentsFollowing;
+CREATE VIEW StudentsFollowing AS
+	SELECT * FROM Students NATURAL JOIN ChosenBranch NATURAL JOIN Branches NATURAL JOIN Programmes;
 -- FinishedCourses
 -- For all students, all finished courses, along with their names, grades (grade 'U', '3', '4' or '5') and number of credits.
 
