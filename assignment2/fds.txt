@@ -14,14 +14,15 @@ LimitedCourses(code,limit)
 	code -> limit
 	(code references Courses.code)
 
-Students(NIN,name,loginID,branch,programme)
+Students(NIN,name,loginID,programme)
 	NIN,loginID -> name
 	NIN,loginID -> programme
-	NIN,loginID -> branch
 	NIN -> loginID
 	loginID -> NIN
-	branch -> programme
 
+ChosenBranch(student,branch,programme)
+	student -> branch,programme
+	
 WaitingOn(code,NIN,date)
 	code,NIN -> date
 
