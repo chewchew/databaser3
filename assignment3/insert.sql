@@ -79,16 +79,16 @@ INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150003','Branch
 INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150004','Branch4','Programme4');
 INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150005','Branch5','Programme5');
 INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150006','Branch6','Programme6');
-INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150007','Branch1','Programme7');
+--INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150007','Branch1','Programme7');
 INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150008','Branch2','Programme8');
 INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150009','Branch3','Programme9');
 INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150010','Branch4','Programme10');
-INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150011','Branch5','Programme1');
+--INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150011','Branch5','Programme1');
 INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150012','Branch6','Programme2');
-INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150013','Branch5','Programme1');
+--INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150013','Branch5','Programme1');
 INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150014','Branch2','Programme2');
 -- should fail
-INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150015','Branch2','Programme1');
+-- INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150015','Branch2','Programme1');
 
 -- Courses
 INSERT INTO Courses (code,name,credits,department) VALUES ('TDA001','Course1',7.5,'Department1');
@@ -162,9 +162,11 @@ INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA014','3');
 --INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA010','5');
 INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA007','4');
 
+INSERT INTO Registered (student, course) VALUES ('9008150009', 'TDA014');
 INSERT INTO Registered (student, course) VALUES ('9008150015', 'TDA010');
 -- TODO register students om TDA008 so waiting list makes sense.
 INSERT INTO WaitingOn (student, course, date) VALUES ('9008150015', 'TDA008','3/8/15 00:00:00');
+INSERT INTO WaitingOn (student, course, date) VALUES ('9008150001', 'TDA011','3/8/16 00:00:00');
 
 -- Mandatory courses for programmes
 INSERT INTO ProgrammeMandatory (programme, course) VALUES ('Programme1', 'TDA011');

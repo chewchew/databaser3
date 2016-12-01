@@ -1,3 +1,9 @@
+DROP VIEW IF EXISTS HostingDepartmentProgramme;
+DROP VIEW IF EXISTS Hosting;
+DROP VIEW IF EXISTS NotHostingDepartmentProgramme;
+DROP VIEW IF EXISTS NotHosting;
+DROP VIEW IF EXISTS StudentsAttendingProgramme;
+DROP VIEW IF EXISTS StudentsFollowing;
 -- in backwards order since psql complains
 -- about tables depending on other tables
 DROP TABLE IF EXISTS Finished;
@@ -110,24 +116,24 @@ CREATE TABLE Prerequisite (
 -- something like this? (this does not work)
 -- some join operation where left-most column shouldnt
 -- match any of the right-most column?
-CREATE OR REPLACE FUNCTION checkCycle()
-RETURNS TRIGGER AS $$
-DECLARE
-	_prerequisite CHAR(6);
-	_toCourse CHAR(6);
-BEGIN
-	CREATE TEMP TABLE tmp AS SELECT * FROM Prerequisite WHERE NEW.toCourse = Prerequisite.prerequisite;
-	WHILE SELECT count(*) FROM (SELECT 1 FROM tmp LIMIT 1 WHERE tmp.toCourse = Prerequisite.prerequisite) > 0 LOOP
-		CREATE TEMP TABLE tmp AS SELECT * FROM tmp, Prerequisite WHERE tmp.toCourse = Prerequisite.prerequisite;
-	END LOOP;
+-- CREATE OR REPLACE FUNCTION checkCycle()
+-- RETURNS TRIGGER AS $$
+-- DECLARE
+-- 	_prerequisite CHAR(6);
+-- 	_toCourse CHAR(6);
+-- BEGIN
+-- 	CREATE TEMP TABLE tmp AS SELECT * FROM Prerequisite WHERE NEW.toCourse = Prerequisite.prerequisite;
+-- 	WHILE SELECT count(*) FROM (SELECT 1 FROM tmp LIMIT 1 WHERE tmp.toCourse = Prerequisite.prerequisite) > 0 LOOP
+-- 		CREATE TEMP TABLE tmp AS SELECT * FROM tmp, Prerequisite WHERE tmp.toCourse = Prerequisite.prerequisite;
+-- 	END LOOP;
 	
-	IF _prerequisite = IN tmp THEN
-			RAISE 'Cycle detected: % -> %',NEW.prerequisite,_prerequisite;
-	END IF;
+-- 	IF _prerequisite = IN tmp THEN
+-- 			RAISE 'Cycle detected: % -> %',NEW.prerequisite,_prerequisite;
+-- 	END IF;
 		
-	RETURN NEW;
-END
-$$ LANGUAGE 'plpgsql';
+-- 	RETURN NEW;
+-- END
+-- $$ LANGUAGE 'plpgsql';
 
 CREATE OR REPLACE FUNCTION checkCycle2()
 RETURNS TRIGGER AS $$

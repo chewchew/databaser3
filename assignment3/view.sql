@@ -1,8 +1,8 @@
 -- Views --
-DROP VIEW IF EXISTS Hosting;
 DROP VIEW IF EXISTS HostingDepartmentProgramme;
-DROP VIEW IF EXISTS NotHosting;
+DROP VIEW IF EXISTS Hosting;
 DROP VIEW IF EXISTS NotHostingDepartmentProgramme;
+DROP VIEW IF EXISTS NotHosting;
 
 CREATE VIEW Hosting AS
 	SELECT * FROM Departments 
@@ -39,13 +39,26 @@ CREATE VIEW StudentsAttendingProgramme AS
 -- For all students, their basic information (name etc.), and the programme and branch (if any) they are following.
 DROP VIEW IF EXISTS StudentsFollowing;
 CREATE VIEW StudentsFollowing AS
-	SELECT * FROM Students NATURAL JOIN ChosenBranch NATURAL JOIN Branches NATURAL JOIN Programmes;
+	SELECT Students.NIN, Students.name, Students.programme, ChosenBranch.branch FROM Students JOIN ChosenBranch ON Students.NIN = ChosenBranch.student;
+
 -- FinishedCourses
 -- For all students, all finished courses, along with their names, grades (grade 'U', '3', '4' or '5') and number of credits.
+DROP VIEW IF EXISTS FinishedCourses;
+CREATE VIEW FinishedCourses AS
+	SELECT Students.name AS Student, Finished.grade, Courses.name AS Course, Courses.credits 
+		FROM Students JOIN Finished ON Students.NIN = Finished.student 
+			JOIN Courses ON Finished.course = Courses.code;
 
 -- Registrations
 -- All registered and waiting students for all courses, along with their waiting status ('registered' or 'waiting').
-
+DROP VIEW IF EXISTS Registrations;
+CREATE VIEW Registrations AS
+	SELECT Students.name AS Student, C.course AS Course,
+			CASE WHEN C.course IN (SELECT course FROM Registered) THEN 'Registered' ELSE 'WaitingOn' END AS Status
+		FROM Students NATURAL JOIN
+			((SELECT * FROM Students JOIN Registered ON Students.NIN = Registered.student) AS A
+						NATURAL FULL JOIN (SELECT * FROM Students JOIN WaitingOn ON Students.NIN = WaitingOn.student) AS B) AS C;
+			
 -- PassedCourses
 -- For all students, all passed courses, i.e. courses finished with a grade other than ‘U’, and the number of credits for those courses. This view is intended as a helper view towards the PathToGraduation view (and for task 4), and will not be directly used by your application.
 
