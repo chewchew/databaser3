@@ -48,17 +48,17 @@ CREATE TABLE Students (
 	branch 			TEXT,
 	programme 		TEXT		NOT NULL REFERENCES Programmes(name)
 );
-
+	
 CREATE OR REPLACE FUNCTION checkBranchInProgramme() 
 RETURNS TRIGGER AS $$
-BEGIN
-	IF NEW.branch IS NULL THEN
-		RETURN NEW;
-	ELSEIF NEW.branch IN (SELECT Branches.name FROM Branches WHERE Branches.programme = NEW.programme) THEN
-		RETURN NEW;
-	ELSE
-		RAISE 'Branch -> % not in programme -> %', NEW.branch,New.programme;
-	END IF;
+	BEGIN
+		IF NEW.branch IS NULL THEN
+			RETURN NEW;
+		ELSEIF NEW.branch IN (SELECT Branches.name FROM Branches WHERE Branches.programme = NEW.programme) THEN
+			RETURN NEW;
+		ELSE
+			RAISE 'Branch -> % not in programme -> %', NEW.branch,New.programme;
+		END IF;
 
 	RETURN NEW;
 END
@@ -101,12 +101,32 @@ CREATE TABLE Prerequisite (
 	toCourse		CHAR(6) NOT NULL REFERENCES Courses(code),
 	CHECK(NOT (prerequisite = toCourse))
 	-- REMEMBER assertion for (c1 to c2 to c1)... 
+	PRIMARY KEY (prerequisite, toCourse)
 );
 
 -- something like this? (this does not work)
 -- some join operation where left-most column shouldnt
 -- match any of the right-most column?
 CREATE OR REPLACE FUNCTION checkCycle()
+RETURNS TRIGGER AS $$
+DECLARE
+	_prerequisite CHAR(6);
+	_toCourse CHAR(6);
+BEGIN
+	CREATE TEMP TABLE tmp AS SELECT * FROM Prerequisite WHERE NEW.toCourse = Prerequisite.prerequisite;
+	WHILE SELECT count(*) FROM (SELECT 1 FROM tmp LIMIT 1) > 0 LOOP
+		CREATE TEMP TABLE tmp AS SELECT * FROM tmp, Prerequisite WHERE tmp.toCourse = Prerequisite.prerequisite;
+	END LOOP;
+	
+	IF _prerequisite = IN tmp THEN
+			RAISE 'Cycle detected: % -> %',NEW.prerequisite,_prerequisite;
+	END IF;
+		
+	RETURN NEW;
+END
+$$ LANGUAGE 'plpgsql';
+
+CREATE OR REPLACE FUNCTION checkCycle2()
 RETURNS TRIGGER AS $$
 DECLARE
 	_prerequisite CHAR(6);
@@ -124,7 +144,7 @@ END
 $$ LANGUAGE 'plpgsql';
 
 CREATE TRIGGER cycle BEFORE INSERT ON Prerequisite
-	FOR EACH ROW EXECUTE PROCEDURE checkCycle();
+	FOR EACH ROW EXECUTE PROCEDURE checkCycle2();
 
 CREATE TABLE ProgrammeMandatory (
 	programme	TEXT 	NOT NULL REFERENCES Programmes(name),
