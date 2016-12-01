@@ -101,7 +101,7 @@ INSERT INTO LimitedCourses (code,studentLimit) VALUES ('TDA004',104);
 --INSERT INTO LimitedCourses (code,studentLimit) VALUES ('TDA005',105);
 INSERT INTO LimitedCourses (code,studentLimit) VALUES ('TDA006',106);
 INSERT INTO LimitedCourses (code,studentLimit) VALUES ('TDA007',107);
-INSERT INTO LimitedCourses (code,studentLimit) VALUES ('TDA008',108);
+INSERT INTO LimitedCourses (code,studentLimit) VALUES ('TDA008',3);
 INSERT INTO LimitedCourses (code,studentLimit) VALUES ('TDA009',109);
 --INSERT INTO LimitedCourses (code,studentLimit) VALUES ('TDA010',101);
 INSERT INTO LimitedCourses (code,studentLimit) VALUES ('TDA011',102);
@@ -137,6 +137,7 @@ INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA001','5');
 INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA014','3');
 INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA010','5');
 INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA007','4');
+INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA003','3');
 
 -- student 15, registred on mand course TDA010, waiting on TDA008
 INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA011','U');
@@ -147,6 +148,7 @@ INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA014','3');
 INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA007','4');
 
 INSERT INTO Registered (student, course) VALUES ('9008150015', 'TDA010');
+-- TODO register students om TDA008 so waiting list makes sense.
 INSERT INTO WaitingOn (student, course, date) VALUES ('9008150015', 'TDA008','3/8/15 00:00:00');
 
 -- Mandatory courses for programmes
@@ -165,6 +167,7 @@ INSERT INTO ProgrammeMandatory (programme, course) VALUES ('Programme7', 'TDA007
 INSERT INTO ProgrammeMandatory (programme, course) VALUES ('Programme7', 'TDA010');
 
 -- Mandatory courses for branches
+-- TODO check that branchMand NOT IN progMand?
 INSERT INTO BranchMandatory (branch, programme, course) VALUES ('Branch1', 'Programme1', 'TDA001');
 INSERT INTO BranchMandatory (branch, programme, course) VALUES ('Branch1', 'Programme1', 'TDA014');
 INSERT INTO BranchMandatory (branch, programme, course) VALUES ('Branch1', 'Programme1', 'TDA010');
@@ -176,6 +179,18 @@ INSERT INTO BranchMandatory (branch, programme, course) VALUES ('Branch5', 'Prog
 INSERT INTO BranchMandatory (branch, programme, course) VALUES ('Branch6', 'Programme6', 'TDA002');
 INSERT INTO BranchMandatory (branch, programme, course) VALUES ('Branch1', 'Programme7', 'TDA001');
 
+INSERT INTO Recommended (branch, programme, course) VALUES ('Branch1', 'Programme1', 'TDA014');
+INSERT INTO Recommended (branch, programme, course) VALUES ('Branch2', 'Programme2', 'TDA014');
+INSERT INTO Recommended (branch, programme, course) VALUES ('Branch3', 'Programme3', 'TDA010');
+INSERT INTO Recommended (branch, programme, course) VALUES ('Branch4', 'Programme4', 'TDA010');
+INSERT INTO Recommended (branch, programme, course) VALUES ('Branch5', 'Programme5', 'TDA016');
+INSERT INTO Recommended (branch, programme, course) VALUES ('Branch6', 'Programme6', 'TDA011');
+INSERT INTO Recommended (branch, programme, course) VALUES ('Branch1', 'Programme7', 'TDA012');
+INSERT INTO Recommended (branch, programme, course) VALUES ('Branch2', 'Programme8', 'TDA003'); 	
+INSERT INTO Recommended (branch, programme, course) VALUES ('Branch3', 'Programme9', 'TDA002');
+INSERT INTO Recommended (branch, programme, course) VALUES ('Branch4', 'Programme10', 'TDA001');
+
+-- Classifications
 INSERT INTO Classifications (class) VALUES ('Classification1');
 INSERT INTO Classifications (class) VALUES ('Classification2');
 INSERT INTO Classifications (class) VALUES ('Classification3');
@@ -184,6 +199,7 @@ INSERT INTO Classifications (class) VALUES ('Classification5');
 INSERT INTO Classifications (class) VALUES ('Classification6');
 INSERT INTO Classifications (class) VALUES ('Classification7');
 
+-- Classifications linked to courses
 INSERT INTO HasClass (course,class) VALUES ('TDA001','Classification1');
 INSERT INTO HasClass (course,class) VALUES ('TDA002','Classification2');
 INSERT INTO HasClass (course,class) VALUES ('TDA003','Classification3');
