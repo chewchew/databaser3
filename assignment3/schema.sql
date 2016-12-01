@@ -120,7 +120,7 @@ DECLARE
 	_toCourse CHAR(6);
 BEGIN
 	CREATE TEMP TABLE tmp AS SELECT * FROM Prerequisite WHERE NEW.toCourse = Prerequisite.prerequisite;
-	WHILE SELECT count(*) FROM (SELECT 1 FROM tmp LIMIT 1) > 0 LOOP
+	WHILE SELECT count(*) FROM (SELECT 1 FROM tmp LIMIT 1 WHERE tmp.toCourse = Prerequisite.prerequisite) > 0 LOOP
 		CREATE TEMP TABLE tmp AS SELECT * FROM tmp, Prerequisite WHERE tmp.toCourse = Prerequisite.prerequisite;
 	END LOOP;
 	
