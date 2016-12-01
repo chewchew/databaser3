@@ -10,8 +10,9 @@ DROP TABLE IF EXISTS WaitingOn;
 DROP TABLE IF EXISTS HasClass;
 DROP TABLE IF EXISTS Classifications;
 DROP TABLE IF EXISTS LimitedCourses;
-DROP TABLE IF EXISTS Courses;
+DROP TABLE IF EXISTS ChosenBranch;
 DROP TABLE IF EXISTS Students;
+DROP TABLE IF EXISTS Courses;
 DROP TABLE IF EXISTS Branches;
 DROP TABLE IF EXISTS HostedBy;
 DROP TABLE IF EXISTS Programmes;
@@ -45,10 +46,15 @@ CREATE TABLE Students (
 	NIN 			CHAR(10) 	NOT NULL PRIMARY KEY,
 	name 			TEXT 		NOT NULL,
 	loginID 		TEXT 		NOT NULL UNIQUE,
-	branch 			TEXT,
 	programme 		TEXT		NOT NULL REFERENCES Programmes(name)
 );
-	
+
+CREATE TABLE ChosenBranch (
+	student 		CHAR(10) 	NOT NULL REFERENCES Students(NIN) PRIMARY KEY,
+	branch 			TEXT 		NOT NULL,
+	programme 		TEXT 		NOT NULL
+);
+
 CREATE OR REPLACE FUNCTION checkBranchInProgramme() 
 RETURNS TRIGGER AS $$
 	BEGIN
