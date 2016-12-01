@@ -102,9 +102,9 @@ CREATE TABLE WaitingOn (
 CREATE TABLE Prerequisite (
 	prerequisite	CHAR(6) NOT NULL REFERENCES Courses(code),
 	toCourse		CHAR(6) NOT NULL REFERENCES Courses(code),
+	PRIMARY KEY (prerequisite, toCourse),
 	CHECK(NOT (prerequisite = toCourse))
 	-- REMEMBER assertion for (c1 to c2 to c1)... 
-	PRIMARY KEY (prerequisite, toCourse)
 );
 
 -- something like this? (this does not work)
