@@ -211,27 +211,33 @@ INSERT INTO Recommended (branch, programme, course) VALUES ('Branch4', 'Programm
 -- Classifications
 INSERT INTO Classifications (class) VALUES ('Classification1');
 INSERT INTO Classifications (class) VALUES ('Classification2');
-INSERT INTO Classifications (class) VALUES ('Classification3');
+INSERT INTO Classifications (class) VALUES ('Research');
 INSERT INTO Classifications (class) VALUES ('Classification4');
 INSERT INTO Classifications (class) VALUES ('Classification5');
-INSERT INTO Classifications (class) VALUES ('Classification6');
+INSERT INTO Classifications (class) VALUES ('Math');
 INSERT INTO Classifications (class) VALUES ('Classification7');
+INSERT INTO Classifications (class) VALUES ('Robotics');
+INSERT INTO Classifications (class) VALUES ('AI');
+
 
 -- Classifications linked to courses
 INSERT INTO HasClass (course,class) VALUES ('TDA001','Classification1');
 INSERT INTO HasClass (course,class) VALUES ('TDA002','Classification2');
-INSERT INTO HasClass (course,class) VALUES ('TDA003','Classification3');
+INSERT INTO HasClass (course,class) VALUES ('TDA003','Research');
 INSERT INTO HasClass (course,class) VALUES ('TDA004','Classification4');
 INSERT INTO HasClass (course,class) VALUES ('TDA005','Classification5');
-INSERT INTO HasClass (course,class) VALUES ('TDA006','Classification6');
+INSERT INTO HasClass (course,class) VALUES ('TDA006','Math');
 INSERT INTO HasClass (course,class) VALUES ('TDA007','Classification7');
 INSERT INTO HasClass (course,class) VALUES ('TDA008','Classification1');
 INSERT INTO HasClass (course,class) VALUES ('TDA009','Classification2');
-INSERT INTO HasClass (course,class) VALUES ('TDA010','Classification3');
+INSERT INTO HasClass (course,class) VALUES ('TDA010','Research');
+INSERT INTO HasClass (course,class) VALUES ('TDA010','Math');
 INSERT INTO HasClass (course,class) VALUES ('TDA001','Classification4');
 INSERT INTO HasClass (course,class) VALUES ('TDA001','Classification5');
-INSERT INTO HasClass (course,class) VALUES ('TDA013','Classification6');
-INSERT INTO HasClass (course,class) VALUES ('TDA005','Classification7');
+INSERT INTO HasClass (course,class) VALUES ('TDA013','Math');
+INSERT INTO HasClass (course,class) VALUES ('TDA005','Robotics');
+INSERT INTO HasClass (course,class) VALUES ('TDA005','AI');
+
 
 
 SELECT * FROM Departments;
