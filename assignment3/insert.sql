@@ -131,6 +131,7 @@ INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA001','TDA004');
 INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA003','TDA006');
 INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA004','TDA006');
 INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA014','TDA003');
+INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA013','TDA015');
 -- should fail
 INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA006','TDA001');
 
@@ -169,6 +170,22 @@ INSERT INTO Registered (student, course) VALUES ('9008150015', 'TDA010');
 INSERT INTO WaitingOn (student, course, date) VALUES ('9008150015', 'TDA008','3/8/15 00:00:00');
 INSERT INTO WaitingOn (student, course, date) VALUES ('9008150001', 'TDA011','3/8/16 00:00:00');
 
+--INSERT INTO ProgrammeMandatory (programme, course) VALUES ('Programme5', 'TDA013');
+--INSERT INTO ProgrammeMandatory (programme, course) VALUES ('Programme5', 'TDA006');
+-- student 5
+INSERT INTO Finished (student,course,grade) VALUES ('9008150005','TDA013','4');
+INSERT INTO WaitingOn (student, course, date) VALUES ('9008150005', 'TDA008','3/8/15 00:10:00');
+
+-- student 6
+INSERT INTO Registered (student, course) VALUES ('9008150006', 'TDA008');
+
+-- student 7
+INSERT INTO Registered (student, course) VALUES ('9008150006', 'TDA008');
+
+-- student 8
+INSERT INTO Registered (student, course) VALUES ('9008150006', 'TDA008');
+
+
 -- Mandatory courses for programmes
 INSERT INTO ProgrammeMandatory (programme, course) VALUES ('Programme1', 'TDA011');
 INSERT INTO ProgrammeMandatory (programme, course) VALUES ('Programme1', 'TDA016');
@@ -193,7 +210,7 @@ INSERT INTO BranchMandatory (branch, programme, course) VALUES ('Branch5', 'Prog
 INSERT INTO BranchMandatory (branch, programme, course) VALUES ('Branch6', 'Programme2', 'TDA016');
 INSERT INTO BranchMandatory (branch, programme, course) VALUES ('Branch3', 'Programme3', 'TDA011');
 INSERT INTO BranchMandatory (branch, programme, course) VALUES ('Branch4', 'Programme4', 'TDA012');
-INSERT INTO BranchMandatory (branch, programme, course) VALUES ('Branch5', 'Programme5', 'TDA006');
+INSERT INTO BranchMandatory (branch, programme, course) VALUES ('Branch5', 'Programme5', 'TDA008');
 INSERT INTO BranchMandatory (branch, programme, course) VALUES ('Branch6', 'Programme6', 'TDA002');
 INSERT INTO BranchMandatory (branch, programme, course) VALUES ('Branch1', 'Programme7', 'TDA001');
 
