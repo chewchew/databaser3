@@ -150,6 +150,7 @@ INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA011','4');
 INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA016','3');
 INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA001','5');
 INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA014','3');
+INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA005','5');
 INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA010','5');
 INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA007','4');
 INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA003','3');
