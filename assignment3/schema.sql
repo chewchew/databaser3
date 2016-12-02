@@ -148,8 +148,9 @@ BEGIN
 END
 $$ LANGUAGE 'plpgsql';
 
+DROP TRIGGER IF EXISTS cycle ON Prerequisite;
 CREATE TRIGGER cycle BEFORE INSERT ON Prerequisite
-	FOR EACH ROW EXECUTE PROCEDURE checkCycle2();
+	FOR EACH ROW EXECUTE PROCEDURE checkCycle();
 
 CREATE TABLE ProgrammeMandatory (
 	programme	TEXT 	NOT NULL REFERENCES Programmes(name),
