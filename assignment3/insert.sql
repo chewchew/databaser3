@@ -93,17 +93,17 @@ INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150014','Branch
 -- Courses
 INSERT INTO Courses (code,name,credits,department) VALUES ('TDA001','Course1',7.5,'Department1');
 INSERT INTO Courses (code,name,credits,department) VALUES ('TDA002','Course2',7.5,'Department2');
-INSERT INTO Courses (code,name,credits,department) VALUES ('TDA003','Course3',7.5,'Department3');
+INSERT INTO Courses (code,name,credits,department) VALUES ('TDA003','Snails and Their Mating Habits',7.5,'Department3');
 INSERT INTO Courses (code,name,credits,department) VALUES ('TDA004','Course4',7.5,'Department4');
-INSERT INTO Courses (code,name,credits,department) VALUES ('TDA005','Course5',7.5,'Department5');
-INSERT INTO Courses (code,name,credits,department) VALUES ('TDA006','Course6',7.5,'Department6');
+INSERT INTO Courses (code,name,credits,department) VALUES ('TDA005','Advanced Robotics',7.5,'Department5');
+INSERT INTO Courses (code,name,credits,department) VALUES ('TDA006','Math for Dummies',7.5,'Department6');
 INSERT INTO Courses (code,name,credits,department) VALUES ('TDA007','Course7',7.5,'Department1');
 INSERT INTO Courses (code,name,credits,department) VALUES ('TDA008','Course8',7.5,'Department2');
 INSERT INTO Courses (code,name,credits,department) VALUES ('TDA009','Course9',7.5,'Department3');
-INSERT INTO Courses (code,name,credits,department) VALUES ('TDA010','Course10',7.5,'Department4');
+INSERT INTO Courses (code,name,credits,department) VALUES ('TDA010','Counting Stars',7.5,'Department4');
 INSERT INTO Courses (code,name,credits,department) VALUES ('TDA011','Course11',7.5,'Department5');
 INSERT INTO Courses (code,name,credits,department) VALUES ('TDA012','Course12',7.5,'Department6');
-INSERT INTO Courses (code,name,credits,department) VALUES ('TDA013','Course13',7.5,'Department1');
+INSERT INTO Courses (code,name,credits,department) VALUES ('TDA013','Casino Science',7.5,'Department1');
 INSERT INTO Courses (code,name,credits,department) VALUES ('TDA014','Course14',7.5,'Department2');
 INSERT INTO Courses (code,name,credits,department) VALUES ('TDA015','Course15',7.5,'Department3');
 INSERT INTO Courses (code,name,credits,department) VALUES ('TDA016','Course16',7.5,'Department4');
@@ -218,14 +218,15 @@ INSERT INTO Classifications (class) VALUES ('Math');
 INSERT INTO Classifications (class) VALUES ('Classification7');
 INSERT INTO Classifications (class) VALUES ('Robotics');
 INSERT INTO Classifications (class) VALUES ('AI');
+INSERT INTO Classifications (class) VALUES ('Biology');
 
 
 -- Classifications linked to courses
 INSERT INTO HasClass (course,class) VALUES ('TDA001','Classification1');
 INSERT INTO HasClass (course,class) VALUES ('TDA002','Classification2');
 INSERT INTO HasClass (course,class) VALUES ('TDA003','Research');
+INSERT INTO HasClass (course,class) VALUES ('TDA003','Biology');
 INSERT INTO HasClass (course,class) VALUES ('TDA004','Classification4');
-INSERT INTO HasClass (course,class) VALUES ('TDA005','Classification5');
 INSERT INTO HasClass (course,class) VALUES ('TDA006','Math');
 INSERT INTO HasClass (course,class) VALUES ('TDA007','Classification7');
 INSERT INTO HasClass (course,class) VALUES ('TDA008','Classification1');
