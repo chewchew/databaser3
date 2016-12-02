@@ -60,10 +60,40 @@ CREATE VIEW Registrations AS
 						NATURAL FULL JOIN (SELECT * FROM Students JOIN WaitingOn ON Students.NIN = WaitingOn.student) AS B) AS C;
 			
 -- PassedCourses
--- For all students, all passed courses, i.e. courses finished with a grade other than ‘U’, and the number of credits for those courses. This view is intended as a helper view towards the PathToGraduation view (and for task 4), and will not be directly used by your application.
+-- For all students, all passed courses, i.e. courses finished with a 
+-- grade other than ‘U’, and the number of credits for those courses. 
+-- This view is intended as a helper view towards the PathToGraduation
+-- view (and for task 4), and will not be directly used by your application.
+DROP VIEW IF EXISTS PassedCourses;
+CREATE VIEW PassedCourses AS
+	SELECT NIN, code, grade, credits FROM
+		Courses JOIN
+			(Students JOIN Finished 
+				ON Students.NIN = Finished.student AND Finished.grade IN ('3','4','5')) 
+			AS A
+		ON Courses.code = A.course;
 
 -- UnreadMandatory
--- For all students, the mandatory courses (branch and programme) they have not yet passed. This view is intended as a helper view towards the PathToGraduation view, and will not be directly used by your application.
+-- For all students, the mandatory courses (branch and programme) they 
+-- have not yet passed. This view is intended as a helper view towards 
+-- the PathToGraduation view, and will not be directly used by your application.
+DROP VIEW IF EXISTS UnreadMandatory;
+CREATE VIEW UnreadMandatory AS
+	SELECT Students.NIN, A.course FROM
+		(SELECT programme,course FROM ProgrammeMandatory UNION SELECT programme,course from BranchMandatory) AS A
+	JOIN
+		Students ON A.programme = Students.programme AND 
+			(Students.NIN,A.course) NOT IN (SELECT NIN,code FROM PassedCourses)
+	ORDER BY NIN;
+/*CREATE VIEW UnreadMandatory AS
+	SELECT * FROM
+		(SELECT Students.NIN, Students.name, ProgrammeMandatory.course FROM Students
+			JOIN ProgrammeMandatory ON Students.programme = ProgrammeMandatory.Programme
+		UNION
+		SELECT Students.NIN, Students.name, BranchMandatory.course FROM Students
+			JOIN BranchMandatory ON Students.programme = BranchMandatory.Programme) AS A
+		WHERE NIN NOT IN (SELECT NIN FROM PassedCourses)
+		ORDER BY NIN;*/
 
 -- PathToGraduation
 -- For all students, their path to graduation, i.e. a view with columns for
@@ -73,4 +103,8 @@ CREATE VIEW Registrations AS
 -- - the number of credits they have taken in courses that are classified as research courses.
 -- - the number of seminar courses they have read.
 -- whether or not they qualify for graduation.
-
+DROP VIEW IF EXISTS PathToGraduation;
+CREATE VIEW PathToGraduation AS
+	SELECT Students.NIN, Students.name, SUM(grade) FROM
+	Students JOIN PassedCourses ON Students.NIN = PassedCourses.NIN
+	GROUP BY Students.NIN;
