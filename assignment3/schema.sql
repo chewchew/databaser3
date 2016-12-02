@@ -180,6 +180,30 @@ CREATE TABLE Registered (
 	PRIMARY KEY (student, course)
 );
 
+CREATE OR REPLACE FUNCTION hasClearedPrerequisites() 
+RETURNS TRIGGER AS $$
+BEGIN
+	CREATE TEMP TABLE prereq AS SELECT * FROM Prerequisite WHERE NEW.course = Prerequisite.toCourse
+	
+	WHILE (EXISTS (SELECT * FROM tmp NATURAL JOIN Prerequisite WHERE tmp.toCourse = Prerequisite.prerequisite)) LOOP
+	
+		SELECT * INTO prereq FROM prereq NATURAL JOIN Prerequisite WHERE prereq.prerequisite = Prerequisite.toCourse
+		
+	END LOOP
+	
+	IF EXIST (SELECT * FROM prereq NATURAL JOIN Finished WHERE  prereq.course NOT IN (SELECT course FROM Finished WHERE Finished.student = NEW.student)) THEN
+	
+		RAISE "Student % have not taken all prerequisite courses for course %", NEW.student, NEW.course
+		
+	END IF;
+	
+	RETURN NEW;
+END
+$$ LANGUAGE 'plpgsql';
+
+CREATE TRIGGER prereq BEFORE INSERT ON Registered
+	FOR EACH ROW EXECUTE PROCEDURE hasClearedPrerequisites();
+
 CREATE TABLE Finished (
 	student	CHAR(11) 	NOT NULL REFERENCES Students(NIN),
 	course	CHAR(6) 	NOT NULL REFERENCES Courses(code),
