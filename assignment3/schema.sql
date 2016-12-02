@@ -118,18 +118,14 @@ CREATE TABLE Prerequisite (
 -- match any of the right-most column?
 CREATE OR REPLACE FUNCTION checkCycle()
 RETURNS TRIGGER AS $$
-DECLARE
-	_prerequisite CHAR(6);
-	_toCourse CHAR(6);
 BEGIN
 	CREATE TEMP TABLE tmp AS SELECT * FROM Prerequisite WHERE NEW.toCourse = Prerequisite.prerequisite;
-	--WHILE (SELECT count(*) FROM (SELECT 1 FROM tmp LIMIT 1 WHERE tmp.toCourse = Prerequisite.prerequisite)) > 0 LOOP
 	WHILE EXISTS (SELECT * FROM tmp NATURAL JOIN Prerequisite WHERE tmp.toCourse = Prerequisite.prerequisite) LOOP
 		CREATE TEMP TABLE tmp AS SELECT * FROM tmp NATURAL JOIN Prerequisite WHERE tmp.toCourse = Prerequisite.prerequisite;
 	END LOOP;
 	
 	IF EXISTS (SELECT * FROM tmp WHERE NEW.prerequisite = tmp.prerequisite) THEN
-			RAISE 'Cycle detected: % -> %',NEW.prerequisite,_prerequisite;
+			RAISE 'Cycle detected: % -> %',NEW.prerequisite, NEW.toCourse;
 	END IF;
  	RETURN NEW;
 END
