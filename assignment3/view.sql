@@ -1,5 +1,5 @@
 -- Views --
-DROP VIEW IF EXISTS HostingDepartmentProgramme;
+/*DROP VIEW IF EXISTS HostingDepartmentProgramme;
 DROP VIEW IF EXISTS Hosting;
 DROP VIEW IF EXISTS NotHostingDepartmentProgramme;
 DROP VIEW IF EXISTS NotHosting;
@@ -34,7 +34,7 @@ DROP VIEW IF EXISTS StudentsAttendingProgramme;
 CREATE VIEW StudentsAttendingProgramme AS
 	SELECT Students.name AS Student,Programmes.name AS Programme FROM
 		Students JOIN Programmes ON Students.programme = Programmes.name;
-		
+		*/
 -- StudentsFollowing
 -- For all students, their basic information (name etc.), and the programme and branch (if any) they are following.
 DROP VIEW IF EXISTS StudentsFollowing;
@@ -85,15 +85,6 @@ CREATE VIEW UnreadMandatory AS
 		Students ON A.programme = Students.programme AND 
 			(Students.NIN,A.course) NOT IN (SELECT NIN,code FROM PassedCourses)
 	ORDER BY NIN;
-/*CREATE VIEW UnreadMandatory AS
-	SELECT * FROM
-		(SELECT Students.NIN, Students.name, ProgrammeMandatory.course FROM Students
-			JOIN ProgrammeMandatory ON Students.programme = ProgrammeMandatory.Programme
-		UNION
-		SELECT Students.NIN, Students.name, BranchMandatory.course FROM Students
-			JOIN BranchMandatory ON Students.programme = BranchMandatory.Programme) AS A
-		WHERE NIN NOT IN (SELECT NIN FROM PassedCourses)
-		ORDER BY NIN;*/
 
 -- PathToGraduation
 -- For all students, their path to graduation, i.e. a view with columns for
@@ -105,6 +96,11 @@ CREATE VIEW UnreadMandatory AS
 -- whether or not they qualify for graduation.
 DROP VIEW IF EXISTS PathToGraduation;
 CREATE VIEW PathToGraduation AS
-	SELECT Students.NIN, Students.name, SUM(grade) FROM
-	Students JOIN PassedCourses ON Students.NIN = PassedCourses.NIN
-	GROUP BY Students.NIN;
+	SELECT Passed.NIN,SUM(Passed.credits),COUNT(NotPassed.course) FROM
+		(SELECT Students.NIN, credits FROM
+			Students JOIN PassedCourses ON Students.NIN = PassedCourses.NIN) AS Passed
+		JOIN
+		(SELECT Students.NIN, course FROM
+			Students JOIN UnreadMandatory ON Students.NIN = UnreadMandatory.NIN) AS NotPassed
+		ON Passed.NIN = NotPassed.NIN
+		GROUP BY Passed.NIN;
