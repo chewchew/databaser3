@@ -116,37 +116,74 @@ CREATE TABLE Prerequisite (
 -- something like this? (this does not work)
 -- some join operation where left-most column shouldnt
 -- match any of the right-most column?
+-- CREATE OR REPLACE FUNCTION checkCycle3()
+-- RETURNS TRIGGER AS $$
+-- BEGIN
+-- 	CREATE TEMP TABLE tmp AS (SELECT * FROM Prerequisite WHERE Prerequisite.prerequisite = NEW.toCourse);
+-- 	WHILE (EXISTS (SELECT * FROM tmp NATURAL JOIN Prerequisite WHERE tmp.toCourse = Prerequisite.prerequisite)) LOOP
+-- 		CREATE TABLE tmp2 AS SELECT * FROM tmp NATURAL JOIN Prerequisite WHERE tmp.toCourse = Prerequisite.prerequisite;
+--         DROP TABLE tmp;
+--         ALTER TABLE tmp2 RENAME TO tmp;
+--         IF EXISTS (SELECT * FROM tmp WHERE NEW.prerequisite = tmp.prerequisite) THEN
+--             RAISE 'Cycle detected: % -> %',NEW.prerequisite, NEW.toCourse;
+--         END IF;
+
+-- 	END LOOP;
+	
+--  	RETURN NEW;
+-- END
+-- $$ LANGUAGE 'plpgsql';
+
 CREATE OR REPLACE FUNCTION checkCycle()
 RETURNS TRIGGER AS $$
+DECLARE
+    arr bpchar[];
 BEGIN
-	CREATE TEMP TABLE tmp AS SELECT * FROM Prerequisite WHERE NEW.toCourse = Prerequisite.prerequisite;
-	WHILE EXISTS (SELECT * FROM tmp NATURAL JOIN Prerequisite WHERE tmp.toCourse = Prerequisite.prerequisite) LOOP
-		CREATE TEMP TABLE tmp AS SELECT * FROM tmp NATURAL JOIN Prerequisite WHERE tmp.toCourse = Prerequisite.prerequisite;
-	END LOOP;
-	
-	IF EXISTS (SELECT * FROM tmp WHERE NEW.prerequisite = tmp.prerequisite) THEN
-			RAISE 'Cycle detected: % -> %',NEW.prerequisite, NEW.toCourse;
-	END IF;
- 	RETURN NEW;
+    CREATE TEMP TABLE prereq AS SELECT * FROM Prerequisite;
+    INSERT INTO prereq VALUES (NEW.prerequisite, NEW.toCourse);
+    IF EXISTS (
+       WITH RECURSIVE prev AS (
+            SELECT p.prerequisite, 1 AS depth, arr || p.prerequisite  as seen, false as cycle
+            FROM prereq p
+            WHERE p.prerequisite = NEW.toCourse
+            UNION ALL
+            SELECT p.prerequisite, prev.depth + 1, seen || p.prerequisite as seen, p.prerequisite = any(seen) as cycle
+            FROM prev
+            INNER JOIN prereq p on prev.prerequisite = p.toCourse
+            AND prev.cycle = false
+        )
+        SELECT * 
+        FROM prev
+        WHERE cycle = true
+        )
+    THEN
+        DROP TABLE prereq;
+        RAISE 'Cycle detected: % -> %',NEW.prerequisite, NEW.toCourse;
+    ELSE
+        DROP TABLE prereq;
+        RETURN NEW;
+    END IF; 
+
 END
 $$ LANGUAGE 'plpgsql';
 
-CREATE OR REPLACE FUNCTION checkCycle2()
-RETURNS TRIGGER AS $$
-DECLARE
-	_prerequisite CHAR(6);
-	_toCourse CHAR(6);
-BEGIN
-	SELECT * INTO _prerequisite,_toCourse FROM Prerequisite WHERE NEW.toCourse = Prerequisite.prerequisite;
-	WHILE _toCourse IS NOT NULL LOOP
-		IF _prerequisite = NEW.prerequisite THEN
-			RAISE 'Cycle detected: % -> %',NEW.prerequisite,_prerequisite;
-		END IF;
-		SELECT * INTO _prerequisite,_toCourse FROM Prerequisite WHERE _toCourse = Prerequisite.prerequisite;
-	END LOOP;
-	RETURN NEW;
-END
-$$ LANGUAGE 'plpgsql';
+
+-- CREATE OR REPLACE FUNCTION checkCycle2()
+-- RETURNS TRIGGER AS $$
+-- DECLARE
+-- 	_prerequisite CHAR(6);
+-- 	_toCourse CHAR(6);
+-- BEGIN
+-- 	SELECT * INTO _prerequisite,_toCourse FROM Prerequisite WHERE NEW.toCourse = Prerequisite.prerequisite;
+-- 	WHILE _toCourse IS NOT NULL LOOP
+-- 		IF _prerequisite = NEW.prerequisite THEN
+-- 			RAISE 'Cycle detected: % -> %',NEW.prerequisite,_prerequisite;
+-- 		END IF;
+-- 		SELECT * INTO _prerequisite,_toCourse FROM Prerequisite WHERE _toCourse = Prerequisite.prerequisite;
+-- 	END LOOP;
+-- 	RETURN NEW;
+-- END
+-- $$ LANGUAGE 'plpgsql';
 
 DROP TRIGGER IF EXISTS cycle ON Prerequisite;
 CREATE TRIGGER cycle BEFORE INSERT ON Prerequisite
@@ -183,17 +220,16 @@ CREATE TABLE Registered (
 CREATE OR REPLACE FUNCTION hasClearedPrerequisites() 
 RETURNS TRIGGER AS $$
 BEGIN
-	CREATE TEMP TABLE prereq AS SELECT * FROM Prerequisite WHERE NEW.course = Prerequisite.toCourse
+	CREATE TEMP TABLE prereq AS SELECT * FROM Prerequisite WHERE NEW.course = Prerequisite.toCourse;
+	WHILE (EXISTS (SELECT * FROM tmp NATURAL JOIN Prerequisite WHERE tmp.toCourse = Prerequisite.prerequisite)) AND NOT (prerq = Prerequisite)  LOOP
 	
-	WHILE (EXISTS (SELECT * FROM tmp NATURAL JOIN Prerequisite WHERE tmp.toCourse = Prerequisite.prerequisite)) LOOP
-	
-		SELECT * INTO prereq FROM prereq NATURAL JOIN Prerequisite WHERE prereq.prerequisite = Prerequisite.toCourse
+		CREATE TEMP TABLE prereq AS SELECT * FROM prereq NATURAL JOIN Prerequisite WHERE prereq.prerequisite = Prerequisite.toCourse;
 		
-	END LOOP
+	END LOOP;
 	
-	IF EXIST (SELECT * FROM prereq NATURAL JOIN Finished WHERE  prereq.course NOT IN (SELECT course FROM Finished WHERE Finished.student = NEW.student)) THEN
+	IF EXISTS (SELECT * FROM prereq NATURAL JOIN Finished WHERE prereq.course NOT IN (SELECT course FROM Finished WHERE Finished.student = NEW.student)) THEN
 	
-		RAISE "Student % have not taken all prerequisite courses for course %", NEW.student, NEW.course
+		RAISE 'Student % have not taken all prerequisite courses for course %', NEW.student, NEW.course;
 		
 	END IF;
 	

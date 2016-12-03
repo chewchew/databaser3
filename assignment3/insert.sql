@@ -133,7 +133,7 @@ INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA004','TDA006');
 INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA014','TDA003');
 INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA013','TDA015');
 -- should fail
-INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA006','TDA001');
+--INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA006','TDA001');
 
 -- Student information
 
@@ -225,7 +225,7 @@ INSERT INTO Recommended (branch, programme, course) VALUES ('Branch2', 'Programm
 INSERT INTO Recommended (branch, programme, course) VALUES ('Branch3', 'Programme9', 'TDA002');
 INSERT INTO Recommended (branch, programme, course) VALUES ('Branch4', 'Programme10', 'TDA001');
 
--- Classifications
+-- Classificationsz
 INSERT INTO Classifications (class) VALUES ('Computer Science');
 INSERT INTO Classifications (class) VALUES ('Philosophy');
 INSERT INTO Classifications (class) VALUES ('Research');
@@ -257,7 +257,7 @@ INSERT INTO HasClass (course,class) VALUES ('TDA013','Math');
 INSERT INTO HasClass (course,class) VALUES ('TDA005','Computer Science');
 INSERT INTO HasClass (course,class) VALUES ('TDA005','Robotics');
 INSERT INTO HasClass (course,class) VALUES ('TDA005','AI');
-INSERT INTO HasClass (course,class) VALUES ('TDA015','Math')
+INSERT INTO HasClass (course,class) VALUES ('TDA015','Math');
 INSERT INTO HasClass (course,class) VALUES ('TDA015','Research');
 
 
