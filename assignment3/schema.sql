@@ -247,7 +247,18 @@ BEGIN
     ELSE
         DROP TABLE IF EXISTS fin;
         DROP TABLE IF EXISTS prereq;
-        RETURN NEW;
+        IF EXISTS (SELECT code FROM LimitedCourses WHERE LimitedCourses.code = NEW.course) THEN
+            IF (SELECT studentLimit FROM LimitedCourses WHERE LimitedCourses.code = NEW.course) > 0 THEN
+                UPDATE LimitedCourses SET studentLimit = studentLimit - 1
+                WHERE LimitedCourses.code = NEW.course;
+            RETURN NEW;
+            ELSE
+                INSERT INTO WaitingOn VALUES (NEW.course, NEW.student, CURRENT_TIME);
+                RETURN NULL;
+            END IF;
+        ELSE
+            RETURN NEW;
+        END IF;
     END IF;
 END
 $$ LANGUAGE 'plpgsql';
