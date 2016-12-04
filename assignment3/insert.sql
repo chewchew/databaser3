@@ -166,6 +166,7 @@ INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA007','4');
 
 INSERT INTO Registered (student, course) VALUES ('9008150009', 'TDA014');
 INSERT INTO Registered (student, course) VALUES ('9008150015', 'TDA010');
+
 -- TODO register students om TDA008 so waiting list makes sense.
 INSERT INTO WaitingOn (student, course, date) VALUES ('9008150015', 'TDA008','3/8/15 00:00:00');
 INSERT INTO WaitingOn (student, course, date) VALUES ('9008150001', 'TDA011','3/8/16 00:00:00');
@@ -180,10 +181,10 @@ INSERT INTO WaitingOn (student, course, date) VALUES ('9008150005', 'TDA008','3/
 INSERT INTO Registered (student, course) VALUES ('9008150006', 'TDA008');
 
 -- student 7
-INSERT INTO Registered (student, course) VALUES ('9008150006', 'TDA008');
+INSERT INTO Registered (student, course) VALUES ('9008150007', 'TDA008');
 
 -- student 8
-INSERT INTO Registered (student, course) VALUES ('9008150006', 'TDA008');
+INSERT INTO Registered (student, course) VALUES ('9008150008', 'TDA008');
 
 
 -- Mandatory courses for programmes
@@ -262,9 +263,9 @@ INSERT INTO HasClass (course,class) VALUES ('TDA015','Research');
 
 
 
-SELECT * FROM Departments;
-SELECT * FROM Programmes;
-SELECT * FROM HostedBy;
-SELECT * FROM Branches;
-SELECT * FROM Students;
-SELECT * FROM Courses;
+-- SELECT * FROM Departments;
+-- SELECT * FROM Programmes;
+-- SELECT * FROM HostedBy;
+-- SELECT * FROM Branches;
+-- SELECT * FROM Students;
+-- SELECT * FROM Courses;

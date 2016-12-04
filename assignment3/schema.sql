@@ -152,9 +152,10 @@ BEGIN
             INNER JOIN prereq p on prev.prerequisite = p.toCourse
             AND prev.cycle = false
         )
-        SELECT * 
+        SELECT 1 
         FROM prev
-        WHERE cycle = true
+        WHERE cycle
+        LIMIT 1
         )
     THEN
         DROP TABLE prereq;
@@ -219,25 +220,39 @@ CREATE TABLE Registered (
 
 CREATE OR REPLACE FUNCTION hasClearedPrerequisites() 
 RETURNS TRIGGER AS $$
+DECLARE
+    arr bpchar[];
 BEGIN
-	CREATE TEMP TABLE prereq AS SELECT * FROM Prerequisite WHERE NEW.course = Prerequisite.toCourse;
-	WHILE (EXISTS (SELECT * FROM tmp NATURAL JOIN Prerequisite WHERE tmp.toCourse = Prerequisite.prerequisite)) AND NOT (prerq = Prerequisite)  LOOP
-	
-		CREATE TEMP TABLE prereq AS SELECT * FROM prereq NATURAL JOIN Prerequisite WHERE prereq.prerequisite = Prerequisite.toCourse;
-		
-	END LOOP;
-	
-	IF EXISTS (SELECT * FROM prereq NATURAL JOIN Finished WHERE prereq.course NOT IN (SELECT course FROM Finished WHERE Finished.student = NEW.student)) THEN
-	
-		RAISE 'Student % have not taken all prerequisite courses for course %', NEW.student, NEW.course;
-		
-	END IF;
-	
-	RETURN NEW;
+	CREATE TEMP TABLE prereq AS SELECT * FROM Prerequisite WHERE NEW.course = Prerequisite.toCourse; --all prereq to intresting course
+    CREATE TEMP TABLE fin AS SELECT course FROM Finished WHERE NEW.student = Finished.student; -- student's finished courses
+    IF EXISTS (
+      WITH RECURSIVE prev AS (
+                SELECT p.prerequisite, arr || NEW.course || p.prerequisite AS seen, p.prerequisite IN (SELECT * FROM fin) AS qualified
+                FROM Prerequisite p
+                WHERE p.toCourse = NEW.course
+                UNION ALL
+                SELECT p.prerequisite, seen || p.prerequisite As seen, prev.prerequisite IN (SELECT * FROM fin) AS qualified
+                FROM prev
+                INNER JOIN Prerequisite p ON prev.prerequisite = p.toCourse
+        )
+        SELECT  
+        FROM prev
+        WHERE NOT qualified
+        LIMIT 1
+    ) 
+    THEN 
+        DROP TABLE IF EXISTS fin;
+        DROP TABLE IF EXISTS prereq;
+        RAISE 'Student % have not taken all prerequisite courses for course %', NEW.student, NEW.course;
+    ELSE
+        DROP TABLE IF EXISTS fin;
+        DROP TABLE IF EXISTS prereq;
+        RETURN NEW;
+    END IF;
 END
 $$ LANGUAGE 'plpgsql';
 
-CREATE TRIGGER prereq BEFORE INSERT ON Registered
+CREATE TRIGGER check_qualifications BEFORE INSERT ON Registered
 	FOR EACH ROW EXECUTE PROCEDURE hasClearedPrerequisites();
 
 CREATE TABLE Finished (
