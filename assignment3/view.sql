@@ -64,9 +64,9 @@ CREATE VIEW Registrations AS
 -- grade other than ‘U’, and the number of credits for those courses. 
 -- This view is intended as a helper view towards the PathToGraduation
 -- view (and for task 4), and will not be directly used by your application.
-DROP VIEW IF EXISTS PassedCourses;
+DROP VIEW IF EXISTS PassedCourses CASCADE;
 CREATE VIEW PassedCourses AS
-	SELECT NIN, code, grade, credits FROM
+	SELECT NIN, course, grade, credits FROM
 		Courses JOIN
 			(Students JOIN Finished 
 				ON Students.NIN = Finished.student AND Finished.grade IN ('3','4','5')) 
@@ -83,7 +83,7 @@ CREATE VIEW UnreadMandatory AS
 		(SELECT programme,course FROM ProgrammeMandatory UNION SELECT programme,course from BranchMandatory) AS A
 	JOIN
 		Students ON A.programme = Students.programme AND 
-			(Students.NIN,A.course) NOT IN (SELECT NIN,code FROM PassedCourses)
+			(Students.NIN,A.course) NOT IN (SELECT NIN,course FROM PassedCourses)
 	ORDER BY NIN;
 
 -- PathToGraduation
@@ -96,11 +96,45 @@ CREATE VIEW UnreadMandatory AS
 -- whether or not they qualify for graduation.
 DROP VIEW IF EXISTS PathToGraduation;
 CREATE VIEW PathToGraduation AS
-	SELECT Passed.NIN,SUM(Passed.credits),COUNT(NotPassed.course) FROM
-		(SELECT Students.NIN, credits FROM
-			Students JOIN PassedCourses ON Students.NIN = PassedCourses.NIN) AS Passed
-		JOIN
+	SELECT 
+		Passed.NIN, 
+		CollectedCredits, 
+		CASE WHEN UnreadCourses IS NULL THEN 0 ELSE UnreadCourses END,
+		CASE WHEN MathCredits IS NULL THEN 0 ELSE MathCredits END,
+		CASE WHEN ResearchCredits IS NULL THEN 0 ELSE ResearchCredits END,
+		CASE WHEN ReadSeminarCourses IS NULL THEN 0 ELSE ReadSeminarCourses END
+	FROM
+	(SELECT NIN,SUM(credits) AS CollectedCredits 
+		FROM PassedCourses 
+		GROUP BY NIN) AS Passed
+	LEFT OUTER JOIN
+	(SELECT NIN,COUNT(course) AS UnreadCourses
+		FROM UnreadMandatory
+		GROUP BY NIN) AS Unread
+	ON Passed.NIN = Unread.NIN
+	LEFT OUTER JOIN
+	(SELECT NIN,SUM(credits) AS MathCredits
+		FROM HasClass JOIN PassedCourses
+		ON HasClass.course = PassedCourses.course AND HasClass.class = 'Math'
+		GROUP BY NIN) AS PassedMath
+	ON Passed.NIN = PassedMath.NIN
+	LEFT OUTER JOIN
+	(SELECT NIN,SUM(credits) AS ResearchCredits
+		FROM HasClass JOIN PassedCourses
+		ON HasClass.course = PassedCourses.course AND HasClass.class = 'Research'
+		GROUP BY NIN) AS PassedResearch
+	ON Passed.NIN = PassedResearch.NIN
+	LEFT OUTER JOIN
+	(SELECT NIN,COUNT(credits) AS ReadSeminarCourses
+		FROM HasClass JOIN PassedCourses
+		ON HasClass.course = PassedCourses.course AND HasClass.class = 'Seminar'
+		GROUP BY NIN) AS ReadSeminar
+	ON Passed.NIN = ReadSeminar.NIN;
+
+			--AND (HasClass.class = 'Math' OR HasClass.class = 'Research')
+		/*(SELECT Students.NIN, credits FROM
+			Students JOIN PassedCourses ON Students.NIN = PassedCourses.NIN) AS Passed*/
+		/*JOIN
 		(SELECT Students.NIN, course FROM
 			Students JOIN UnreadMandatory ON Students.NIN = UnreadMandatory.NIN) AS NotPassed
-		ON Passed.NIN = NotPassed.NIN
-		GROUP BY Passed.NIN;
+		ON Passed.NIN = NotPassed.NIN*/

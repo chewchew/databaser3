@@ -155,9 +155,6 @@ INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA014','3');
 INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA007','4');
 INSERT INTO Finished (student,course,grade) VALUES ('9008150005','TDA013','4');
 
-INSERT INTO Registered (student, course) VALUES ('9008150009', 'TDA014');
-INSERT INTO Registered (student, course) VALUES ('9008150015', 'TDA010');
-
 -- student 1 to 9 have finished TDA002, which is a prereq to TDA009
 INSERT INTO Finished (student, course, grade) VALUES ('9008150001', 'TDA002', '3');
 INSERT INTO Finished (student, course, grade) VALUES ('9008150002', 'TDA002', '4');
@@ -188,8 +185,8 @@ INSERT INTO Registered (student, course) VALUES ('9008150007', 'TDA008');
 INSERT INTO Registered (student, course) VALUES ('9008150008', 'TDA008');
 INSERT INTO Registered (student, course) VALUES ('9008150015', 'TDA008');
 
-
-
+INSERT INTO Registered (student, course) VALUES ('9008150009', 'TDA014');
+INSERT INTO Registered (student, course) VALUES ('9008150015', 'TDA010');
 
 -- Mandatory courses for programmes
 INSERT INTO ProgrammeMandatory (programme, course) VALUES ('Programme1', 'TDA011');
@@ -234,7 +231,7 @@ INSERT INTO Recommended (branch, programme, course) VALUES ('Branch4', 'Programm
 INSERT INTO Classifications (class) VALUES ('Computer Science');
 INSERT INTO Classifications (class) VALUES ('Philosophy');
 INSERT INTO Classifications (class) VALUES ('Research');
-INSERT INTO Classifications (class) VALUES ('Classification4');
+INSERT INTO Classifications (class) VALUES ('Seminar');
 INSERT INTO Classifications (class) VALUES ('Classification5');
 INSERT INTO Classifications (class) VALUES ('Math');
 INSERT INTO Classifications (class) VALUES ('Classification7');
@@ -249,14 +246,14 @@ INSERT INTO HasClass (course,class) VALUES ('TDA002','Philosophy');
 INSERT INTO HasClass (course,class) VALUES ('TDA002','Biology');
 INSERT INTO HasClass (course,class) VALUES ('TDA003','Research');
 INSERT INTO HasClass (course,class) VALUES ('TDA003','Biology');
-INSERT INTO HasClass (course,class) VALUES ('TDA004','Classification4');
+INSERT INTO HasClass (course,class) VALUES ('TDA004','Seminar');
 INSERT INTO HasClass (course,class) VALUES ('TDA006','Math');
 INSERT INTO HasClass (course,class) VALUES ('TDA007','Classification7');
 INSERT INTO HasClass (course,class) VALUES ('TDA008','Computer Science');
 INSERT INTO HasClass (course,class) VALUES ('TDA009','Philosophy');
 INSERT INTO HasClass (course,class) VALUES ('TDA010','Research');
 INSERT INTO HasClass (course,class) VALUES ('TDA010','Math');
-INSERT INTO HasClass (course,class) VALUES ('TDA001','Classification4');
+INSERT INTO HasClass (course,class) VALUES ('TDA001','Seminar');
 INSERT INTO HasClass (course,class) VALUES ('TDA001','Classification5');
 INSERT INTO HasClass (course,class) VALUES ('TDA013','Math');
 INSERT INTO HasClass (course,class) VALUES ('TDA005','Computer Science');
