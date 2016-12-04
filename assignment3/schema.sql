@@ -113,44 +113,36 @@ CREATE TABLE Prerequisite (
 	-- REMEMBER assertion for (c1 to c2 to c1)... 
 );
 
--- something like this? (this does not work)
--- some join operation where left-most column shouldnt
--- match any of the right-most column?
--- CREATE OR REPLACE FUNCTION checkCycle3()
--- RETURNS TRIGGER AS $$
--- BEGIN
--- 	CREATE TEMP TABLE tmp AS (SELECT * FROM Prerequisite WHERE Prerequisite.prerequisite = NEW.toCourse);
--- 	WHILE (EXISTS (SELECT * FROM tmp NATURAL JOIN Prerequisite WHERE tmp.toCourse = Prerequisite.prerequisite)) LOOP
--- 		CREATE TABLE tmp2 AS SELECT * FROM tmp NATURAL JOIN Prerequisite WHERE tmp.toCourse = Prerequisite.prerequisite;
---         DROP TABLE tmp;
---         ALTER TABLE tmp2 RENAME TO tmp;
---         IF EXISTS (SELECT * FROM tmp WHERE NEW.prerequisite = tmp.prerequisite) THEN
---             RAISE 'Cycle detected: % -> %',NEW.prerequisite, NEW.toCourse;
---         END IF;
-
--- 	END LOOP;
-	
---  	RETURN NEW;
--- END
--- $$ LANGUAGE 'plpgsql';
-
+-- This trigger function does:
+-- - check if inserting the new prerequisite create a cycle
+-- - - If it does then we don't insert it
+-- - - otherwise just insert
 CREATE OR REPLACE FUNCTION checkCycle()
 RETURNS TRIGGER AS $$
 DECLARE
     arr bpchar[];
 BEGIN
+    -- copy table and insert new prerequisite into copy
     CREATE TEMP TABLE prereq AS SELECT * FROM Prerequisite;
     INSERT INTO prereq VALUES (NEW.prerequisite, NEW.toCourse);
+
+    -- look for prerequisite depenencies
     IF EXISTS (
        WITH RECURSIVE prev AS (
-            SELECT p.prerequisite, 1 AS depth, arr || p.prerequisite  as seen, false as cycle
+            SELECT p.prerequisite, 
+                1 AS depth, 
+                arr || p.prerequisite  as seen, 
+                false as cycle
             FROM prereq p
             WHERE p.prerequisite = NEW.toCourse
-            UNION ALL
-            SELECT p.prerequisite, prev.depth + 1, seen || p.prerequisite as seen, p.prerequisite = any(seen) as cycle
-            FROM prev
-            INNER JOIN prereq p on prev.prerequisite = p.toCourse
-            AND prev.cycle = false
+                UNION ALL
+                    SELECT p.prerequisite, 
+                        prev.depth + 1, 
+                        seen || p.prerequisite as seen, 
+                        p.prerequisite = any(seen) as cycle
+                    FROM prev
+                    INNER JOIN prereq p on prev.prerequisite = p.toCourse
+                    AND prev.cycle = false
         )
         SELECT 1 
         FROM prev
@@ -158,33 +150,17 @@ BEGIN
         LIMIT 1
         )
     THEN
+        -- Detected cycle, abort
         DROP TABLE prereq;
-        RAISE 'Cycle detected: % -> %',NEW.prerequisite, NEW.toCourse;
+        RAISE 'Cycle detected: % -> %', NEW.prerequisite, NEW.toCourse;
     ELSE
+        -- No cycle, insert new prerequisite
         DROP TABLE prereq;
         RETURN NEW;
     END IF; 
 
 END
 $$ LANGUAGE 'plpgsql';
-
-
--- CREATE OR REPLACE FUNCTION checkCycle2()
--- RETURNS TRIGGER AS $$
--- DECLARE
--- 	_prerequisite CHAR(6);
--- 	_toCourse CHAR(6);
--- BEGIN
--- 	SELECT * INTO _prerequisite,_toCourse FROM Prerequisite WHERE NEW.toCourse = Prerequisite.prerequisite;
--- 	WHILE _toCourse IS NOT NULL LOOP
--- 		IF _prerequisite = NEW.prerequisite THEN
--- 			RAISE 'Cycle detected: % -> %',NEW.prerequisite,_prerequisite;
--- 		END IF;
--- 		SELECT * INTO _prerequisite,_toCourse FROM Prerequisite WHERE _toCourse = Prerequisite.prerequisite;
--- 	END LOOP;
--- 	RETURN NEW;
--- END
--- $$ LANGUAGE 'plpgsql';
 
 DROP TRIGGER IF EXISTS cycle ON Prerequisite;
 CREATE TRIGGER cycle BEFORE INSERT ON Prerequisite
@@ -218,45 +194,68 @@ CREATE TABLE Registered (
 	PRIMARY KEY (student, course)
 );
 
+-- This trigger function does:
+-- - Check that a student fulfilles the prerequisites for a course s/he wants to register on
+-- - Check if the course is limited AND
+-- - - that there are spots left and if so register the student.
+--     Also decriments the number of free spots on the course by one.
+-- - - places the student on the waiting list for that course if
+--     there are no spots left
 CREATE OR REPLACE FUNCTION hasClearedPrerequisites() 
 RETURNS TRIGGER AS $$
 DECLARE
     arr bpchar[];
 BEGIN
-	CREATE TEMP TABLE prereq AS SELECT * FROM Prerequisite WHERE NEW.course = Prerequisite.toCourse; --all prereq to intresting course
-    CREATE TEMP TABLE fin AS SELECT course FROM Finished WHERE NEW.student = Finished.student; -- student's finished courses
+	CREATE TEMP TABLE prereq AS 
+        SELECT * FROM Prerequisite 
+        WHERE NEW.course = Prerequisite.toCourse; --all prereq to intresting course
+    CREATE TEMP TABLE fin AS 
+        SELECT course FROM Finished 
+        WHERE NEW.student = Finished.student; -- student's finished courses
+
+    -- look up the requirements
     IF EXISTS (
       WITH RECURSIVE prev AS (
-                SELECT p.prerequisite, arr || NEW.course || p.prerequisite AS seen, p.prerequisite IN (SELECT * FROM fin) AS qualified
+                SELECT p.prerequisite, 
+                    arr || NEW.course || p.prerequisite AS seen, 
+                    p.prerequisite IN (SELECT * FROM fin) AS qualified
                 FROM Prerequisite p
                 WHERE p.toCourse = NEW.course
-                UNION ALL
-                SELECT p.prerequisite, seen || p.prerequisite As seen, prev.prerequisite IN (SELECT * FROM fin) AS qualified
-                FROM prev
-                INNER JOIN Prerequisite p ON prev.prerequisite = p.toCourse
+                    UNION ALL
+                        SELECT p.prerequisite, 
+                            seen || p.prerequisite As seen, 
+                            prev.prerequisite IN (SELECT * FROM fin) AS qualified
+                        FROM prev
+                        INNER JOIN Prerequisite p ON prev.prerequisite = p.toCourse
         )
-        SELECT  
+        SELECT 1 
         FROM prev
         WHERE NOT qualified
         LIMIT 1
     ) 
     THEN 
+        -- student doesn't fulfill the requirements for the course
         DROP TABLE IF EXISTS fin;
         DROP TABLE IF EXISTS prereq;
-        RAISE 'Student % have not taken all prerequisite courses for course %', NEW.student, NEW.course;
+        RAISE 'Student % have not taken all prerequisite courses for course %', 
+                NEW.student, NEW.course;
     ELSE
         DROP TABLE IF EXISTS fin;
         DROP TABLE IF EXISTS prereq;
         IF EXISTS (SELECT code FROM LimitedCourses WHERE LimitedCourses.code = NEW.course) THEN
             IF (SELECT studentLimit FROM LimitedCourses WHERE LimitedCourses.code = NEW.course) > 0 THEN
+                -- decriment number of free spots by 1
                 UPDATE LimitedCourses SET studentLimit = studentLimit - 1
                 WHERE LimitedCourses.code = NEW.course;
-            RETURN NEW;
+                -- register
+                RETURN NEW;
             ELSE
+                -- No spots left on course, place in waiting list
                 INSERT INTO WaitingOn VALUES (NEW.course, NEW.student, CURRENT_TIME);
                 RETURN NULL;
             END IF;
         ELSE
+            -- register
             RETURN NEW;
         END IF;
     END IF;
