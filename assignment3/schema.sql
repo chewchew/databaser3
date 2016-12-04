@@ -3,7 +3,14 @@ DROP VIEW IF EXISTS Hosting;
 DROP VIEW IF EXISTS NotHostingDepartmentProgramme;
 DROP VIEW IF EXISTS NotHosting;
 DROP VIEW IF EXISTS StudentsAttendingProgramme;
+
+DROP VIEW IF EXISTS PathToGraduation;
+DROP VIEW IF EXISTS UnreadMandatory;
+DROP VIEW IF EXISTS PassedCourses;
+DROP VIEW IF EXISTS Registrations;
+DROP VIEW IF EXISTS FinishedCourses;
 DROP VIEW IF EXISTS StudentsFollowing;
+
 -- in backwards order since psql complains
 -- about tables depending on other tables
 DROP TABLE IF EXISTS Finished;
@@ -61,6 +68,9 @@ CREATE TABLE ChosenBranch (
 	programme 		TEXT 		NOT NULL
 );
 
+-- This trigger function does:
+-- - check that a chossen branch avctually belong to the program the student
+--   is enrolled in.
 CREATE OR REPLACE FUNCTION checkBranchInProgramme() 
 RETURNS TRIGGER AS $$
 BEGIN
@@ -162,7 +172,6 @@ BEGIN
 END
 $$ LANGUAGE 'plpgsql';
 
-DROP TRIGGER IF EXISTS cycle ON Prerequisite;
 CREATE TRIGGER cycle BEFORE INSERT ON Prerequisite
 	FOR EACH ROW EXECUTE PROCEDURE checkCycle();
 
@@ -251,6 +260,7 @@ BEGIN
                 RETURN NEW;
             ELSE
                 -- No spots left on course, place in waiting list
+                RAISE NOTICE 'Course "%" is full, placing student % on waiting list', NEW.course, NEW.student;
                 INSERT INTO WaitingOn VALUES (NEW.course, NEW.student, CURRENT_TIME);
                 RETURN NULL;
             END IF;

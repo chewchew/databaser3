@@ -135,17 +135,6 @@ INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA013','TDA015');
 -- should fail
 --INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA006','TDA001');
 
--- Student information
-
--- Program 1 mandatory
--- TDA011, limited course
--- TDA016, unlimited
---
--- Program 1, branch 1 mandatory
--- TDA001, limited course
--- TDA014, limited
--- TDA010, unlimited
-
 -- student 1, ready for graduation
 INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA011','4');
 INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA016','3');
@@ -175,7 +164,7 @@ INSERT INTO WaitingOn (student, course, date) VALUES ('9008150001', 'TDA011','3/
 --INSERT INTO ProgrammeMandatory (programme, course) VALUES ('Programme5', 'TDA006');
 -- student 5
 INSERT INTO Finished (student,course,grade) VALUES ('9008150005','TDA013','4');
-INSERT INTO WaitingOn (student, course, date) VALUES ('9008150005', 'TDA008','3/8/15 00:10:00');
+INSERT INTO Registered (student, course) VALUES ('9008150005', 'TDA008');
 
 -- student 6
 INSERT INTO Registered (student, course) VALUES ('9008150006', 'TDA008');
@@ -184,6 +173,7 @@ INSERT INTO Registered (student, course) VALUES ('9008150006', 'TDA008');
 INSERT INTO Registered (student, course) VALUES ('9008150007', 'TDA008');
 
 -- student 8
+-- should be on waitng list
 INSERT INTO Registered (student, course) VALUES ('9008150008', 'TDA008');
 
 
