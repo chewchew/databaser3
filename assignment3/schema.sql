@@ -95,7 +95,7 @@ CREATE TABLE Courses (
 
 CREATE TABLE LimitedCourses (
 	code			CHAR(6) NOT NULL REFERENCES Courses(code) PRIMARY KEY,
-	studentLimit	INT		NOT NULL
+	studentLimit	INT		NOT NULL CHECK(studentLimit >= 0)
 );
 
 CREATE TABLE Classifications (
