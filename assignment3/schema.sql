@@ -69,7 +69,7 @@ CREATE TABLE ChosenBranch (
 );
 
 -- This trigger function does:
--- - check that a chossen branch avctually belong to the program the student
+-- - check that a chosen branch actually belong to the program the student
 --   is enrolled in.
 CREATE OR REPLACE FUNCTION checkBranchInProgramme() 
 RETURNS TRIGGER AS $$
@@ -222,7 +222,9 @@ BEGIN
         SELECT course FROM Finished 
         WHERE NEW.student = Finished.student; -- student's finished courses
 
-    -- look up the requirements
+    -- look up the requirements. 
+    -- TODO Actually, recursive is overkill. Should just need to check
+    -- requirements in one step...
     IF EXISTS (
       WITH RECURSIVE prev AS (
                 SELECT p.prerequisite, 
@@ -274,6 +276,27 @@ $$ LANGUAGE 'plpgsql';
 
 CREATE TRIGGER check_qualifications BEFORE INSERT ON Registered
 	FOR EACH ROW EXECUTE PROCEDURE hasClearedPrerequisites();
+
+-- This trigger function increases the course limit by one after a student 
+-- has been deleted, but only if the course was a limitedcourse
+CREATE OR REPLACE FUNCTION correct_limit() 
+RETURNS TRIGGER AS $$
+DECLARE
+    _waitingStudent CHAR(10);
+BEGIN
+    IF EXISTS (SELECT code FROM LimitedCourses WHERE LimitedCourses.code = OLD.course) THEN
+        -- increment number of free spots by 1
+        UPDATE LimitedCourses SET studentLimit = studentLimit + 1
+        WHERE LimitedCourses.code = OLD.course;
+        -- TODO check waitinglist and register student on course
+        RETURN OLD; 
+    END IF;
+END
+$$ LANGUAGE 'plpgsql';
+
+CREATE TRIGGER increse_limit AFTER DELETE ON Registered
+    FOR EACH ROW EXECUTE PROCEDURE correct_limit();
+
 
 CREATE TABLE Finished (
 	student	CHAR(11) 	NOT NULL REFERENCES Students(NIN),
