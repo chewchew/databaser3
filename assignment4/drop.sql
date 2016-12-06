@@ -1,10 +1,8 @@
-
 DROP VIEW IF EXISTS HostingDepartmentProgramme;
 DROP VIEW IF EXISTS Hosting;
 DROP VIEW IF EXISTS NotHostingDepartmentProgramme;
 DROP VIEW IF EXISTS NotHosting;
 DROP VIEW IF EXISTS StudentsAttendingProgramme;
-DROP VIEW IF EXISTS StudentsFollowing;
 
 DROP VIEW IF EXISTS PathToGraduation;
 DROP VIEW IF EXISTS UnreadMandatory;
@@ -32,5 +30,4 @@ DROP TABLE IF EXISTS Branches;
 DROP TABLE IF EXISTS HostedBy;
 DROP TABLE IF EXISTS Programmes;
 DROP TABLE IF EXISTS Departments;
-
 

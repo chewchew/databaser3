@@ -29,6 +29,13 @@ RETURNS TRIGGER AS $$
 DECLARE
     arr bpchar[];
 BEGIN
+	
+	IF NEW.prerequisite IS NULL THEN
+		RAISE EXCEPTION 'prerequisite cannot be null';
+	ELSE IF NEW.toCourse IS NULL THEN
+		RAISE EXCEPTION 'toCourse cannot be null';	
+	END IF;
+	
     -- copy table and insert new prerequisite into copy
     CREATE TEMP TABLE prereq AS SELECT * FROM Prerequisite;
     INSERT INTO prereq VALUES (NEW.prerequisite, NEW.toCourse);
@@ -87,6 +94,17 @@ RETURNS TRIGGER AS $$
 DECLARE
     arr bpchar[];
 BEGIN
+
+	IF NEW.student IS NULL THEN
+		RAISE EXCEPTION 'Studen cannot be null';
+	ELSE IF NEW.course IS NULL THEN
+		RAISE EXCEPTION 'Course cannot be null';	
+	END IF;
+	
+	IF EXISTS (SELECT * FROM WaitingOn wo WHERE wo.course = NEW.course AND wo.student = NEW.student) THEN
+		RAISE EXCEPTION 'Studen % is already in the waiting list for course %', NEW.student, NEW.course;
+	END IF;
+	
 	CREATE TEMP TABLE prereq AS 
         SELECT * FROM Prerequisite 
         WHERE NEW.course = Prerequisite.toCourse; --all prereq to intresting course
@@ -146,7 +164,7 @@ BEGIN
 END
 $$ LANGUAGE 'plpgsql';
 
-CREATE TRIGGER check_qualifications BEFORE INSERT ON Registered
+CREATE TRIGGER check_qualifications BEFORE INSERT ON Registrations
 	FOR EACH ROW EXECUTE PROCEDURE hasClearedPrerequisites();
 
 --------------------------------------------------------------------------------
@@ -159,6 +177,8 @@ DECLARE
     _waitingStudent CHAR(10);
 BEGIN
     IF EXISTS (SELECT code FROM LimitedCourses WHERE LimitedCourses.code = OLD.course) THEN
+    
+    	SELECT student INTO _waitingStudent FROM CourseQueuePositions cqp WHERE cqp.course = OLD.course AND cqp. 
         -- increment number of free spots by 1
         UPDATE LimitedCourses SET studentLimit = studentLimit + 1
         WHERE LimitedCourses.code = OLD.course;
@@ -168,7 +188,7 @@ BEGIN
 END
 $$ LANGUAGE 'plpgsql';
 
-CREATE TRIGGER increse_limit AFTER DELETE ON Registered
+CREATE TRIGGER increse_limit AFTER DELETE ON Registrations
     FOR EACH ROW EXECUTE PROCEDURE correct_limit();
 
 
