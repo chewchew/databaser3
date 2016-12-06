@@ -18,7 +18,7 @@ CREATE VIEW FinishedCourses AS
 -- All registered and waiting students for all courses, along with their waiting status ('registered' or 'waiting').
 DROP VIEW IF EXISTS Registrations;
 CREATE VIEW Registrations AS
-	SELECT Students.name AS Student, C.course AS Course,
+	SELECT Students.NIN AS Student, C.course AS Course,
 			CASE WHEN C.course IN (SELECT course FROM Registered) THEN 'Registered' ELSE 'WaitingOn' END AS Status
 		FROM Students NATURAL JOIN
 			((SELECT * FROM Students JOIN Registered ON Students.NIN = Registered.student) AS A
