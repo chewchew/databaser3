@@ -103,6 +103,5 @@ CREATE VIEW PathToGraduation AS
 -- “1” in that queue, etc.).
 DROP VIEW IF EXISTS CourseQueuePositions;
 CREATE VIEW CourseQueuePositions AS
-	SELECT * 
-	FROM WaitingOn
-	ORDER BY date;
+	SELECT student, course, rank() over (ORDER BY date asc)
+	FROM WaitingOn;
