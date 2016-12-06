@@ -1,40 +1,5 @@
 -- Views --
-/*DROP VIEW IF EXISTS HostingDepartmentProgramme;
-DROP VIEW IF EXISTS Hosting;
-DROP VIEW IF EXISTS NotHostingDepartmentProgramme;
-DROP VIEW IF EXISTS NotHosting;
 
-CREATE VIEW Hosting AS
-	SELECT * FROM Departments 
-		WHERE Departments.name IN
-			(SELECT department FROM HostedBy);
-
-CREATE VIEW HostingDepartmentProgramme AS
-	SELECT 	Hosting.name AS department,
-			Hosting.abbreviation AS deptAbbreviation,
-			Programmes.name AS programme,
-			Programmes.abbreviation AS progAbbreviation
-		FROM Hosting NATURAL JOIN HostedBy 
-			JOIN Programmes ON HostedBy.programme = Programmes.name;
-
-CREATE VIEW NotHosting AS
-	SELECT * FROM Departments 
-		WHERE Departments.name NOT IN
-			(SELECT department FROM HostedBy);
-
-CREATE VIEW NotHostingDepartmentProgramme AS
-	SELECT 	NotHosting.name AS department,
-			NotHosting.abbreviation AS deptAbbreviation,
-			Programmes.name AS programme,
-			Programmes.abbreviation AS progAbbreviation
-		FROM NotHosting NATURAL JOIN HostedBy 
-			JOIN Programmes ON HostedBy.programme = Programmes.name;
-
-DROP VIEW IF EXISTS StudentsAttendingProgramme;
-CREATE VIEW StudentsAttendingProgramme AS
-	SELECT Students.name AS Student,Programmes.name AS Programme FROM
-		Students JOIN Programmes ON Students.programme = Programmes.name;
-		*/
 -- StudentsFollowing
 -- For all students, their basic information (name etc.), and the programme and branch (if any) they are following.
 DROP VIEW IF EXISTS StudentsFollowing;
@@ -131,10 +96,12 @@ CREATE VIEW PathToGraduation AS
 		GROUP BY NIN) AS ReadSeminar
 	ON Passed.NIN = ReadSeminar.NIN;
 
-			--AND (HasClass.class = 'Math' OR HasClass.class = 'Research')
-		/*(SELECT Students.NIN, credits FROM
-			Students JOIN PassedCourses ON Students.NIN = PassedCourses.NIN) AS Passed*/
-		/*JOIN
-		(SELECT Students.NIN, course FROM
-			Students JOIN UnreadMandatory ON Students.NIN = UnreadMandatory.NIN) AS NotPassed
-		ON Passed.NIN = NotPassed.NIN*/
+-- CourseQueuePositions
+-- For all students who are in the queue for a course, the course code, 
+-- he student’s identification number, and the student’s current place 
+-- in the queue (the student who is first in a queue will have place 
+-- “1” in that queue, etc.).
+DROP VIEW IF EXISTS CourseQueuePositions;
+CREATE VIEW CourseQueuePositions AS
+	SELECT student, course, rank() over (ORDER BY date asc)
+	FROM WaitingOn;
