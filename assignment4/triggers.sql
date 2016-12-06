@@ -178,13 +178,28 @@ DECLARE
 BEGIN
     IF EXISTS (SELECT code FROM LimitedCourses WHERE LimitedCourses.code = OLD.course) THEN
     
-    	SELECT student INTO _waitingStudent FROM CourseQueuePositions cqp WHERE cqp.course = OLD.course AND cqp. 
-        -- increment number of free spots by 1
-        UPDATE LimitedCourses SET studentLimit = studentLimit + 1
-        WHERE LimitedCourses.code = OLD.course;
-        -- TODO check waitinglist and register student on course
-        RETURN OLD; 
+    	SELECT student INTO _waitingStudent FROM CourseQueuePositions cqp 
+    	WHERE cqp.course = OLD.course AND cqp.position = 1 
+    	
+    	IF _waitingStudent IS NULL THEN
+    		-- increment number of free spots by 1
+		    UPDATE LimitedCourses SET studentLimit = studentLimit + 1
+		    WHERE LimitedCourses.code = OLD.course;
+		    
+		ELSE
+    		-- remove student from waiting list
+    		DELETE FROM CourseQueuePositions cqp 
+    		WHERE cqp.course = OLD.course AND cqp.position = 1;
+    	
+    		-- register waiting student on course
+    		INSERT INTO Registrations VALUES (_waitingStudent, OLD.course, 'Registered');
+    		
+    	END IF;
+    	
     END IF;
+    
+    RETURN OLD;
+    
 END
 $$ LANGUAGE 'plpgsql';
 
