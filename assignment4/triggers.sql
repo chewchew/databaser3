@@ -15,6 +15,7 @@ BEGIN
 END
 $$ LANGUAGE 'plpgsql';
 
+DROP TRIGGER IF EXISTS branchInProgramme ON ChosenBranch;
 CREATE TRIGGER branchInProgramme BEFORE INSERT ON ChosenBranch
 	FOR EACH ROW EXECUTE PROCEDURE checkBranchInProgramme();
 	
@@ -30,9 +31,9 @@ DECLARE
     arr bpchar[];
 BEGIN
 	
-	IF NEW.prerequisite IS NULL THEN
+	IF (NEW.prerequisite IS NULL) THEN
 		RAISE EXCEPTION 'prerequisite cannot be null';
-	ELSE IF NEW.toCourse IS NULL THEN
+	ELSEIF (NEW.toCourse IS NULL) THEN
 		RAISE EXCEPTION 'toCourse cannot be null';	
 	END IF;
 	
@@ -71,11 +72,11 @@ BEGIN
         -- No cycle, insert new prerequisite
         DROP TABLE prereq;
         RETURN NEW;
-    END IF; 
-
+    END IF;
 END
 $$ LANGUAGE 'plpgsql';
 
+DROP TRIGGER IF EXISTS cycle ON Prerequisite;
 CREATE TRIGGER cycle BEFORE INSERT ON Prerequisite
 	FOR EACH ROW EXECUTE PROCEDURE checkCycle();
 
@@ -95,9 +96,9 @@ DECLARE
     arr bpchar[];
 BEGIN
 
-	IF NEW.student IS NULL THEN
+	IF (NEW.student IS NULL) THEN
 		RAISE EXCEPTION 'Studen cannot be null';
-	ELSE IF NEW.course IS NULL THEN
+	ELSEIF (NEW.course IS NULL) THEN
 		RAISE EXCEPTION 'Course cannot be null';	
 	END IF;
 	
@@ -148,7 +149,9 @@ BEGIN
                 -- decriment number of free spots by 1
                 UPDATE LimitedCourses SET studentLimit = studentLimit - 1
                 WHERE LimitedCourses.code = NEW.course;
+
                 -- register
+                INSERT INTO Registered VALUES (NEW.student, NEW.course);
                 RETURN NEW;
             ELSE
                 -- No spots left on course, place in waiting list
@@ -158,13 +161,15 @@ BEGIN
             END IF;
         ELSE
             -- register
+            INSERT INTO Registered VALUES (NEW.student, NEW.course);
             RETURN NEW;
         END IF;
     END IF;
 END
 $$ LANGUAGE 'plpgsql';
 
-CREATE TRIGGER check_qualifications BEFORE INSERT ON Registrations
+DROP TRIGGER IF EXISTS check_qualifications ON Registrations;
+CREATE TRIGGER check_qualifications INSTEAD OF INSERT ON Registrations
 	FOR EACH ROW EXECUTE PROCEDURE hasClearedPrerequisites();
 
 --------------------------------------------------------------------------------
@@ -178,10 +183,10 @@ DECLARE
 BEGIN
     IF EXISTS (SELECT code FROM LimitedCourses WHERE LimitedCourses.code = OLD.course) THEN
     
-    	SELECT student INTO _waitingStudent FROM CourseQueuePositions cqp 
-    	WHERE cqp.course = OLD.course AND cqp.position = 1 
+    	SELECT student INTO _waitingStudent FROM CourseQueuePositions cqp
+    	WHERE cqp.course = OLD.course AND cqp.position = 1 ;
     	
-    	IF _waitingStudent IS NULL THEN
+    	IF (_waitingStudent IS NULL) THEN
     		-- increment number of free spots by 1
 		    UPDATE LimitedCourses SET studentLimit = studentLimit + 1
 		    WHERE LimitedCourses.code = OLD.course;
@@ -198,12 +203,17 @@ BEGIN
     	
     END IF;
     
+    -- Delete from underlying table
+    DELETE FROM Registered r 
+    WHERE r.student = OLD.student AND r.course = OLD.course;
+
     RETURN OLD;
     
 END
 $$ LANGUAGE 'plpgsql';
 
-CREATE TRIGGER increse_limit AFTER DELETE ON Registrations
+DROP TRIGGER IF EXISTS increse_limit ON Registrations;
+CREATE TRIGGER increse_limit INSTEAD OF DELETE ON Registrations
     FOR EACH ROW EXECUTE PROCEDURE correct_limit();
 
 

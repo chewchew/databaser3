@@ -126,16 +126,6 @@ INSERT INTO LimitedCourses (code,studentLimit) VALUES ('TDA014',105);
 --INSERT INTO LimitedCourses (code,studentLimit) VALUES ('TDA015',110);
 INSERT INTO LimitedCourses (code,studentLimit) VALUES ('TDA016',120);
 
-INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA001','TDA003');
-INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA001','TDA004');
-INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA003','TDA006');
-INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA004','TDA006');
-INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA014','TDA003');
-INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA013','TDA015');
-INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA002','TDA009');
--- should fail
---INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA006','TDA001');
-
 -- student 1, ready for graduation
 INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA011','4');
 INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA016','3');
@@ -164,29 +154,6 @@ INSERT INTO Finished (student, course, grade) VALUES ('9008150005', 'TDA002', '5
 INSERT INTO Finished (student, course, grade) VALUES ('9008150006', 'TDA002', '5');
 INSERT INTO Finished (student, course, grade) VALUES ('9008150007', 'TDA002', '4');
 INSERT INTO Finished (student, course, grade) VALUES ('9008150008', 'TDA002', '5');
-
--- 5 regesitered students and 3 waiting students on course TDA009
-INSERT INTO Registered (student, course) VALUES ('9008150001', 'TDA009');
-INSERT INTO Registered (student, course) VALUES ('9008150002', 'TDA009');
-INSERT INTO Registered (student, course) VALUES ('9008150003', 'TDA009');
-INSERT INTO Registered (student, course) VALUES ('9008150004', 'TDA009');
-INSERT INTO Registered (student, course) VALUES ('9008150005', 'TDA009');
-INSERT INTO Registered (student, course) VALUES ('9008150006', 'TDA009');
-INSERT INTO Registered (student, course) VALUES ('9008150007', 'TDA009');
-INSERT INTO Registered (student, course) VALUES ('9008150008', 'TDA009');
-
-
--- 3 regesitered students and 4 waiting students on course TDA008
-INSERT INTO Registered (student, course) VALUES ('9008150003', 'TDA008');
-INSERT INTO Registered (student, course) VALUES ('9008150004', 'TDA008');
-INSERT INTO Registered (student, course) VALUES ('9008150005', 'TDA008');
-INSERT INTO Registered (student, course) VALUES ('9008150006', 'TDA008');
-INSERT INTO Registered (student, course) VALUES ('9008150007', 'TDA008');
-INSERT INTO Registered (student, course) VALUES ('9008150008', 'TDA008');
-INSERT INTO Registered (student, course) VALUES ('9008150015', 'TDA008');
-
-INSERT INTO Registered (student, course) VALUES ('9008150009', 'TDA014');
-INSERT INTO Registered (student, course) VALUES ('9008150015', 'TDA010');
 
 -- Mandatory courses for programmes
 INSERT INTO ProgrammeMandatory (programme, course) VALUES ('Programme1', 'TDA011');
