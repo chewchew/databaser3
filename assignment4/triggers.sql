@@ -92,7 +92,7 @@ CREATE TRIGGER cycle BEFORE INSERT ON Prerequisite
 -- - - places the student on the waiting list for that course if
 --     there are no spots left
 --------------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION hasClearedPrerequisites() 
+CREATE OR REPLACE FUNCTION register() 
 RETURNS TRIGGER AS $$
 DECLARE
     arr bpchar[];
@@ -104,8 +104,15 @@ BEGIN
 		RAISE EXCEPTION 'Course cannot be null';	
 	END IF;
 	
-	IF EXISTS (SELECT * FROM WaitingOn wo WHERE wo.course = NEW.course AND wo.student = NEW.student) THEN
-		RAISE EXCEPTION 'Studen % is already in the waiting list for course %', NEW.student, NEW.course;
+	IF EXISTS (SELECT * FROM WaitingOn wo 
+				WHERE wo.course = NEW.course AND wo.student = NEW.student) THEN
+		RAISE EXCEPTION 'Studen % is already in the waiting list for course %', 
+						NEW.student, NEW.course;
+	ELSEIF EXISTS (SELECT * FROM Finished f 
+					WHERE f.course = NEW.course AND f.student = NEW.student 
+							AND NOT (f.grade = 'U')) THEN
+		RAISE EXCEPTION 'Studen % is already has already finished course %', 
+						NEW.student, NEW.course;
 	END IF;
 	
 	CREATE TEMP TABLE prereq AS 
@@ -147,22 +154,28 @@ BEGIN
         DROP TABLE IF EXISTS fin;
         DROP TABLE IF EXISTS prereq;
         IF EXISTS (SELECT code FROM LimitedCourses WHERE LimitedCourses.code = NEW.course) THEN
-            IF (SELECT studentLimit FROM LimitedCourses WHERE LimitedCourses.code = NEW.course) > 0 THEN
-                -- decriment number of free spots by 1
-                UPDATE LimitedCourses SET studentLimit = studentLimit - 1
-                WHERE LimitedCourses.code = NEW.course;
+            IF (SELECT studentLimit FROM LimitedCourses 
+            	WHERE LimitedCourses.code = NEW.course) - 
+            	(SELECT COUNT(*) FROM Registrations r 
+            	WHERE r.course = NEW.course AND r.status = 'Registered') > 0 THEN
+            	
+--                -- decriment number of free spots by 1
+--                UPDATE LimitedCourses SET studentLimit = studentLimit - 1
+--                WHERE LimitedCourses.code = NEW.course;
 
                 -- register
+                RAISE NOTICE 'Registering student % on limited course %', NEW.student, NEW.course;
                 INSERT INTO Registered VALUES (NEW.student, NEW.course);
                 RETURN NEW;
             ELSE
                 -- No spots left on course, place in waiting list
-                RAISE NOTICE 'Course "%" is full, placing student % on waiting list', NEW.course, NEW.student;
+                RAISE NOTICE 'Course % is full, placing student % on waiting list', NEW.course, NEW.student;
                 INSERT INTO WaitingOn VALUES (NEW.course, NEW.student, CURRENT_TIME);
                 RETURN NULL;
             END IF;
         ELSE
             -- register
+            RAISE NOTICE 'Registering student % on course %', NEW.student, NEW.course;
             INSERT INTO Registered VALUES (NEW.student, NEW.course);
             RETURN NEW;
         END IF;
@@ -172,7 +185,7 @@ $$ LANGUAGE 'plpgsql';
 
 DROP TRIGGER IF EXISTS check_qualifications ON Registrations;
 CREATE TRIGGER check_qualifications INSTEAD OF INSERT ON Registrations
-	FOR EACH ROW EXECUTE PROCEDURE hasClearedPrerequisites();
+	FOR EACH ROW EXECUTE PROCEDURE register();
 
 --------------------------------------------------------------------------------
 -- This trigger function increases the course limit by one after a student 
@@ -187,44 +200,48 @@ BEGIN
 	IF NOT EXISTS (	SELECT * FROM Registrations r 
 				WHERE r.course = OLD.course AND r.student = OLD.student ) THEN
 			RAISE EXCEPTION 'Student % is not registered on course %', 
-							OLD.student, OLD.course
+							OLD.student, OLD.course;
 	END IF;
+	
+	-- Delete from underlying table
+	RAISE NOTICE 'Unregistering student % from course %', OLD.student, OLD.course;
+	DELETE FROM Registered r 
+	WHERE r.student = OLD.student AND r.course = OLD.course;
 	
 	IF EXISTS (SELECT code FROM LimitedCourses WHERE LimitedCourses.code = OLD.course) THEN
 	
 		SELECT student INTO _waitingStudent FROM CourseQueuePositions cqp
 		WHERE cqp.course = OLD.course AND cqp.position = 1 ;
 		
-		IF (_waitingStudent IS NULL) THEN
-			-- increment number of free spots by 1
-			UPDATE LimitedCourses SET studentLimit = studentLimit + 1
-			WHERE LimitedCourses.code = OLD.course;
+		IF (_waitingStudent IS NOT NULL) THEN
+--			-- increment number of free spots by 1
+--			UPDATE LimitedCourses SET studentLimit = studentLimit + 1
+--			WHERE LimitedCourses.code = OLD.course;
 			
-		ELSE
-			-- remove student from waiting list
-			DELETE FROM CourseQueuePositions cqp 
-			WHERE cqp.course = OLD.course AND cqp.position = 1;
+			IF (SELECT studentLimit FROM LimitedCourses 
+		        	WHERE LimitedCourses.code = OLD.course) - 
+		        	(SELECT COUNT(*) FROM Registrations r 
+		        	WHERE r.course = OLD.course AND r.status = 'Registered') > 0 THEN
+				-- remove student from waiting list
+				DELETE FROM CourseQueuePositions cqp 
+				WHERE cqp.course = OLD.course AND cqp.position = 1;
 		
-			-- register waiting student on course
-			INSERT INTO Registrations VALUES (_waitingStudent, OLD.course, 'Registered');
+				-- register waiting student on course
+				RAISE NOTICE 'Registering waiting student % on course %', _waitingStudent, OLD.course;
+				INSERT INTO Registrations VALUES (_waitingStudent, OLD.course, 'Registered');
+			END IF;
 			
 		END IF;
 		
 	END IF;
 
-	-- Delete from underlying table
-	DELETE FROM Registered r 
-	WHERE r.student = OLD.student AND r.course = OLD.course;
-
 	RETURN OLD;
-
-    
 END
 $$ LANGUAGE 'plpgsql';
 
 DROP TRIGGER IF EXISTS unregister ON Registrations;
 CREATE TRIGGER unregister INSTEAD OF DELETE ON Registrations
-    FOR EACH ROW EXECUTE PROCEDURE correct_limit();
+    FOR EACH ROW EXECUTE PROCEDURE unregister();
 
 
 
