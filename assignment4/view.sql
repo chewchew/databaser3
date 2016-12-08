@@ -78,8 +78,8 @@ CREATE VIEW PathToGraduation AS
 			ResearchCredits >= 10 AND
 			ReadSeminarCourses > 0 AND
 			CollectedRecommendedCredits >= 10
-			THEN 'This student qualifies for Graduation.'
-			ELSE 'This student does not qualify for Graduation'
+			THEN 'Does Qualify'
+			ELSE 'Does Not Qualify'
 		END AS Graduation
 	FROM
 	(SELECT NIN,SUM(credits) AS CollectedCredits 
