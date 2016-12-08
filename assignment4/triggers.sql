@@ -6,10 +6,12 @@
 CREATE OR REPLACE FUNCTION checkBranchInProgramme() 
 RETURNS TRIGGER AS $$
 BEGIN
-	IF NEW.branch IN (SELECT Branches.name FROM Branches WHERE Branches.programme = NEW.programme) THEN
-		RETURN NEW;
-	ELSE
-		RAISE 'Branch -> % not in programme -> %', NEW.branch,New.programme;
+	IF NEW.branch NOT IN (SELECT Branches.name FROM Branches 
+							WHERE Branches.programme IN (
+								SELECT programme FROM Student s 
+								WHERE NEW.Student = s.student )) 
+	THEN
+		RAISE EXCEPTION 'Branch -> % not in programme -> %', NEW.branch,New.programme;
 	END IF;
 	RETURN NEW;
 END
