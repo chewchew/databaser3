@@ -65,8 +65,7 @@ CREATE TABLE Students (
 CREATE TABLE ChosenBranch (
 	student 		CHAR(10) 	NOT NULL REFERENCES Students(NIN) PRIMARY KEY,
 	branch 			TEXT 		NOT NULL,
-	programme 		TEXT 		NOT NULL,
-	FOREIGN KEY (branch,programme) REFERENCES Branches(name,programme)
+	programme 		TEXT 		NOT NULL
 );
 
 CREATE TABLE Courses (

@@ -10,7 +10,7 @@ CREATE VIEW StudentsFollowing AS
 -- For all students, all finished courses, along with their names, grades (grade 'U', '3', '4' or '5') and number of credits.
 DROP VIEW IF EXISTS FinishedCourses;
 CREATE VIEW FinishedCourses AS
-	SELECT Students.NIN AS StudentNIN, Students.name AS StudentName Finished.grade, Courses.name AS Course, Courses.credits 
+	SELECT Students.NIN AS StudentNIN, Students.name AS StudentName, Finished.grade, Courses.name AS Course, Courses.credits 
 		FROM Students JOIN Finished ON Students.NIN = Finished.student 
 			JOIN Courses ON Finished.course = Courses.code;
 
@@ -18,8 +18,8 @@ CREATE VIEW FinishedCourses AS
 -- All registered and waiting students for all courses, along with their waiting status ('registered' or 'waiting').
 DROP VIEW IF EXISTS Registrations;
 CREATE VIEW Registrations AS
-	SELECT Students.NIN AS Student, C.course AS Course,
-			CASE WHEN C.course IN (SELECT course FROM Registered) THEN 'Registered' ELSE 'WaitingOn' END AS Status
+	SELECT Students.NIN AS Student, C.course AS Course, 
+		CASE WHEN Course IN (SELECT course FROM WaitingOn WHERE WaitingOn.student = Student) THEN 'WaitingOn' ELSE 'Registered' END
 		FROM Students NATURAL JOIN
 			((SELECT * FROM Students JOIN Registered ON Students.NIN = Registered.student) AS A
 						NATURAL FULL JOIN (SELECT * FROM Students JOIN WaitingOn ON Students.NIN = WaitingOn.student) AS B) AS C;
@@ -59,6 +59,10 @@ CREATE VIEW UnreadMandatory AS
 -- - the number of credits they have taken in courses that are classified as research courses.
 -- - the number of seminar courses they have read.
 -- whether or not they qualify for graduation.
+-- 		10hp recommended branch
+-- 		20hp math
+-- 		10hp research
+-- 		1 seminar course
 DROP VIEW IF EXISTS PathToGraduation;
 CREATE VIEW PathToGraduation AS
 	SELECT 
@@ -67,11 +71,30 @@ CREATE VIEW PathToGraduation AS
 		CASE WHEN UnreadCourses IS NULL THEN 0 ELSE UnreadCourses END,
 		CASE WHEN MathCredits IS NULL THEN 0 ELSE MathCredits END,
 		CASE WHEN ResearchCredits IS NULL THEN 0 ELSE ResearchCredits END,
-		CASE WHEN ReadSeminarCourses IS NULL THEN 0 ELSE ReadSeminarCourses END
+		CASE WHEN ReadSeminarCourses IS NULL THEN 0 ELSE ReadSeminarCourses END,
+		CASE WHEN 
+			UnreadCourses IS NULL AND 
+			MathCredits >= 20 AND
+			ResearchCredits >= 10 AND
+			ReadSeminarCourses > 0 AND
+			CollectedRecommendedCredits >= 10
+			THEN 'This student qualifies for Graduation.'
+			ELSE 'This student does not qualify for Graduation'
+		END AS Graduation
 	FROM
 	(SELECT NIN,SUM(credits) AS CollectedCredits 
 		FROM PassedCourses 
 		GROUP BY NIN) AS Passed
+	LEFT OUTER JOIN
+	(SELECT NIN,SUM(credits) AS CollectedRecommendedCredits 
+		FROM PassedCourses 
+		WHERE PassedCourses.course IN
+			(SELECT course 
+				FROM Recommended
+				WHERE Recommended.programme IN
+					(SELECT programme FROM Students WHERE Students.NIN = NIN))
+		GROUP BY NIN) AS PassedRecommended
+	ON Passed.NIN = PassedRecommended.NIN
 	LEFT OUTER JOIN
 	(SELECT NIN,COUNT(course) AS UnreadCourses
 		FROM UnreadMandatory
