@@ -69,11 +69,19 @@ public class StudentPortal
         }
     }
 
-    static void printColumns(ResultSet rs, String[] columns) throws SQLException {
+    static void printColumns(ResultSet rs, String[] columns, 
+        boolean indent, String separator, boolean printColumn) throws SQLException {
+        String tab;
+        if (indent) {
+            tab = "\t";
+        } else {
+            tab = "";
+        }
         for (int i = 0; i < columns.length; i++) {
             String column = columns[i];
-            System.out.println(column + ": " + rs.getString(column));
+            System.out.println(tab + (printColumn ? column + ": " : "") + rs.getString(column));
         }
+        System.out.println(separator);
     }
 
     static boolean columnInTable(ResultSet rs, String column) throws SQLException{
@@ -87,6 +95,18 @@ public class StudentPortal
         return false;
     }
 
+    static void getInformationHelper(Connection conn, String student, 
+        String query, String[] columns, boolean indent, String separator, boolean printColumn) throws SQLException {
+        
+        PreparedStatement stmt = 
+                conn.prepareStatement(query);
+        stmt.setString(1, student);
+        ResultSet rs = stmt.executeQuery();
+        while(rs.next()){
+            printColumns(rs, columns, indent, separator, printColumn);
+        }
+        stmt.close();
+    }
     /* Given a student identification number, ths function should print
      * - the name of the student, the students national identification number
      *   and their issued login name (something similar to a CID)
@@ -99,28 +119,36 @@ public class StudentPortal
     static void getInformation(Connection conn, String student) throws SQLException
     {
         try {
-            PreparedStatement studentInfo = 
-                conn.prepareStatement("SELECT * FROM Students WHERE Students.NIN = ?");
-            studentInfo.setString(1, student);
-            
-            ResultSet rs = studentInfo.executeQuery();
-            rs.next();
-            printColumns(rs, new String[]{"NIN","name","loginID","programme"});
-            
-            PreparedStatement studentBranch =
-                conn.prepareStatement("SELECT CASE WHEN branch = NULL THEN 'Not Selected' ELSE branch END FROM StudentsFollowing WHERE NIN = ?");
-            studentBranch.setString(1, student);
+            getInformationHelper(conn, student, 
+                "SELECT * FROM Students WHERE Students.NIN = ?", 
+                new String[]{"NIN","Name","LoginID","Programme"}, false, "",true);
 
-            rs = studentBranch.executeQuery();
-            if (rs.next()) {
-                printColumns(rs, new String[]{"branch"});
-            }
-            
-            studentInfo.close();
-            studentBranch.close();
+            getInformationHelper(conn, student, 
+                "SELECT branch FROM StudentsFollowing WHERE NIN = ?", 
+                new String[]{"Branch"}, false, "",true);
 
+            System.out.println("Read Courses:");
+            getInformationHelper(conn, student, 
+                "SELECT studentnin,course,grade "+
+                "FROM FinishedCourses WHERE studentnin = ?",
+                new String[]{"Course","Grade"}, true, "\n",true);
+            
+            System.out.println("Registrations:");
+            getInformationHelper(conn, student, 
+                "SELECT * FROM Registrations WHERE student = ?",
+                new String[]{"Course","Status"}, true, "\n",true);
+
+            System.out.println("Unread Mandatory Courses:");
+            getInformationHelper(conn, student, 
+                "SELECT * FROM UnreadMandatory WHERE nin = ?",
+                new String[]{"Course"}, true, "\n",true);
+
+            System.out.println("Graduation Status:");
+            getInformationHelper(conn, student,
+                "SELECT graduation FROM PathToGraduation WHERE nin = ?",
+                new String[]{"Graduation"}, false, "",false);
         } catch (SQLException e) {
-            System.out.println("Something went wrong!" + e);
+            System.out.println(""+e);
         }
     }
 
