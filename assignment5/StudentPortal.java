@@ -173,7 +173,8 @@ public class StudentPortal
             
             System.out.println("Success");
         } catch (SQLException e) {
-            System.out.println("Failure");
+            System.out.println("Failure:");
+            System.out.println(e.getMessage());
         } 
     }
 
@@ -193,7 +194,8 @@ public class StudentPortal
             
             System.out.println("Success");
         } catch (SQLException e) {
-            System.out.println("Failure");
+            System.out.println("Failure:");
+            System.out.println(e.getMessage());
         }
     }
 }
