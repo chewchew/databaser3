@@ -196,6 +196,13 @@ RETURNS TRIGGER AS $$
 DECLARE
     _waitingStudent CHAR(10);
 BEGIN
+    -- If student is on Waiting List, remove him/her and then done
+    IF EXISTS ( SELECT * FROM WaitingOn w 
+                WHERE w.course = OLD.course AND w.student = OLD.student ) THEN
+        RAISE NOTICE 'Removing student % from Waiting List for course %', OLD.student, OLD.course;
+        DELETE FROM WaitingOn w WHERE w.student = OLD.student AND w.course = OLD.course; 
+        RETURN OLD;
+    END IF;
 
 	IF NOT EXISTS (	SELECT * FROM Registered r 
 				WHERE r.course = OLD.course AND r.student = OLD.student ) THEN
