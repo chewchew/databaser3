@@ -34,6 +34,8 @@ SELECT test_main();
     INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA014','TDA003');
     INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA013','TDA015');
     INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA002','TDA009');
+    INSERT INTO Prerequisite (prerequisite,toCourse) VALUES ('TDA011','TDA016');
+
 
     -- registrations 
     -- 5 regesitered students and 4 waiting students on course TDA009
@@ -163,6 +165,24 @@ EXCEPTION
 END
 $$ LANGUAGE 'plpgsql';
 SELECT test_register_no_qual();
+
+--------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION test_register_failed_prereq() RETURNS TEXT AS $$
+BEGIN
+
+RAISE NOTICE '<--------------------------- New Test --------------------------->';
+RAISE NOTICE '--> Attempt to register with failed prerequisite';
+    INSERT INTO Registrations (student, course) VALUES ('9008150015', 'TDA016');
+    RETURN 'Fail';
+EXCEPTION 
+    WHEN raise_exception THEN 
+        RAISE NOTICE 'Caught exception';
+        RAISE NOTICE 'Student was unable to register without qualifications';
+        RETURN 'Done';
+
+END
+$$ LANGUAGE 'plpgsql';
+SELECT test_register_failed_prereq();
 
 
 --------------------------------------------------------------------------------
@@ -369,10 +389,6 @@ RAISE NOTICE '--> Test to unregister a student when there are students waiting o
     RAISE NOTICE 'Adding more students to TDA009, making it overfull';
     INSERT INTO Registered (student, course) VALUES ('9008150014', 'TDA009');
     INSERT INTO Registered (student, course) VALUES ('9008150015', 'TDA009');
-
-
-    -- SELECT COUNT(*) INTO _size 
-    -- FROM CourseQueuePositions WHERE course = 'TDA009';
 
     CREATE TEMP TABLE copy AS (SELECT * FROM CourseQueuePositions);
 

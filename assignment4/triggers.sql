@@ -124,7 +124,8 @@ BEGIN
         WHERE NEW.course = Prerequisite.toCourse; --all prereq to intresting course
     CREATE TEMP TABLE fin AS 
         SELECT course FROM Finished 
-        WHERE NEW.student = Finished.student; -- student's finished courses
+        WHERE NEW.student = Finished.student 
+        AND Finished.grade <> 'U';  -- student's finished courses
 
     -- look up the requirements. 
     -- TODO Actually, recursive is overkill. Should just need to check
