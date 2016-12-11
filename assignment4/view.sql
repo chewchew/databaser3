@@ -19,7 +19,7 @@ CREATE VIEW FinishedCourses AS
 DROP VIEW IF EXISTS Registrations;
 CREATE VIEW Registrations AS
 	SELECT Students.NIN AS Student, C.course AS Course, 
-		CASE WHEN Student IN (SELECT student FROM WaitingOn) THEN 'WaitingOn' ELSE 'Registered' END AS Status
+		CASE WHEN (Student,Course) IN (SELECT student,course FROM WaitingOn) THEN 'WaitingOn' ELSE 'Registered' END AS Status
 		FROM Students NATURAL JOIN
 			((SELECT * FROM Students JOIN Registered ON Students.NIN = Registered.student) AS A
 						NATURAL FULL JOIN (SELECT * FROM Students JOIN WaitingOn ON Students.NIN = WaitingOn.student) AS B) AS C;
