@@ -5,8 +5,8 @@
 
 \i view.sql
 
-\i triggers.sql
-
 \i insert.sql
+
+\i triggers.sql
 
 \i triggertest.sql

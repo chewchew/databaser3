@@ -118,6 +118,9 @@ INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA005','5');
 INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA010','5');
 INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA007','4');
 INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA003','3');
+INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA013','4');
+INSERT INTO Finished (student,course,grade) VALUES ('9008150001','TDA015','3');
+
 
 -- student 15, registred on mand course TDA010, waiting on TDA008
 INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA011','U');
@@ -154,7 +157,6 @@ INSERT INTO ProgrammeMandatory (programme, course) VALUES ('Programme7', 'TDA007
 INSERT INTO ProgrammeMandatory (programme, course) VALUES ('Programme7', 'TDA010');
 
 -- Mandatory courses for branches
--- TODO check that branchMand NOT IN progMand?
 INSERT INTO BranchMandatory (branch, programme, course) VALUES ('Branch1', 'Programme1', 'TDA001');
 INSERT INTO BranchMandatory (branch, programme, course) VALUES ('Branch1', 'Programme1', 'TDA014');
 INSERT INTO BranchMandatory (branch, programme, course) VALUES ('Branch1', 'Programme1', 'TDA010');
@@ -167,6 +169,7 @@ INSERT INTO BranchMandatory (branch, programme, course) VALUES ('Branch6', 'Prog
 INSERT INTO BranchMandatory (branch, programme, course) VALUES ('Branch1', 'Programme7', 'TDA001');
 
 INSERT INTO Recommended (branch, programme, course) VALUES ('Branch1', 'Programme1', 'TDA014');
+INSERT INTO Recommended (branch, programme, course) VALUES ('Branch1', 'Programme1', 'TDA002');
 INSERT INTO Recommended (branch, programme, course) VALUES ('Branch2', 'Programme2', 'TDA014');
 INSERT INTO Recommended (branch, programme, course) VALUES ('Branch3', 'Programme3', 'TDA010');
 INSERT INTO Recommended (branch, programme, course) VALUES ('Branch4', 'Programme4', 'TDA010');
@@ -211,12 +214,3 @@ INSERT INTO HasClass (course,class) VALUES ('TDA005','Robotics');
 INSERT INTO HasClass (course,class) VALUES ('TDA005','AI');
 INSERT INTO HasClass (course,class) VALUES ('TDA015','Math');
 INSERT INTO HasClass (course,class) VALUES ('TDA015','Research');
-
-
-
--- SELECT * FROM Departments;
--- SELECT * FROM Programmes;
--- SELECT * FROM HostedBy;
--- SELECT * FROM Branches;
--- SELECT * FROM Students;
--- SELECT * FROM Courses;

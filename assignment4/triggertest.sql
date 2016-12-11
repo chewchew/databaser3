@@ -1,3 +1,6 @@
+
+PRINT 'ello';
+
 INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150001','Branch1','Programme1');
 INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150002','Branch2','Programme2');
 INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150003','Branch3','Programme3');
@@ -49,8 +52,27 @@ INSERT INTO Registrations (student, course) VALUES ('9008150015', 'TDA010');
 
 
 -- need to check: update queue pos when  removing from wlist
--- DELETE FROM Registrations r WHERE r.student = '9008150015' AND r.course = 'TDA008; -- should fail
 
---DELETE FROM Registrations r WHERE r.student = '9008150004' AND r.course = 'TDA008'; -- should succed 
+-- should fail since student only on wlist and not registered
+DELETE FROM Registrations r WHERE r.student = '9008150015' AND r.course = 'TDA008'; 
+
+-- should succed
+SELECT * FROM CourseQueuePositions;
+DELETE FROM Registrations r WHERE r.student = '9008150004' AND r.course = 'TDA008';  
+SELECT * FROM CourseQueuePositions;
+
 -- Check tha student 6 is now registered on course 8 and has been removed from WL
 -- only 3 students now wait for course 8
+
+
+-- -- register on a finished course, should fail
+-- INSERT INTO Registrations (student, course) VALUES ('9008150001', 'TDA011');
+
+-- CREATE OR REPLACE FUNCTION ello() RETURNS VOID AS $$
+-- BEGIN
+--     RAISE NOTICE 'ello';
+-- END;
+-- $$ LANGUAGE 'plpqsql';
+
+
+-- CALL ello();
