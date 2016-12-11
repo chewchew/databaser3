@@ -99,20 +99,24 @@ DECLARE
 BEGIN
 
 	IF (NEW.student IS NULL) THEN
-		RAISE EXCEPTION 'Studen cannot be null';
+		RAISE EXCEPTION 'Student cannot be null';
 	ELSEIF (NEW.course IS NULL) THEN
 		RAISE EXCEPTION 'Course cannot be null';	
 	END IF;
 	
 	IF EXISTS (SELECT * FROM WaitingOn wo 
 				WHERE wo.course = NEW.course AND wo.student = NEW.student) THEN
-		RAISE EXCEPTION 'Studen % is already in the waiting list for course %', 
+		RAISE EXCEPTION 'Student % is already in the waiting list for course %', 
 						NEW.student, NEW.course;
 	ELSEIF EXISTS (SELECT * FROM Finished f 
 					WHERE f.course = NEW.course AND f.student = NEW.student 
 							AND NOT (f.grade = 'U')) THEN
-		RAISE EXCEPTION 'Studen % is already has already finished course %', 
+		RAISE EXCEPTION 'Student % is already has already finished course %', 
 						NEW.student, NEW.course;
+    ELSEIF EXISTS (SELECT * FROM Registered r 
+                    WHERE r.course = NEW.course AND r.student = NEW.student) THEN
+        RAISE EXCEPTION 'Student % is already registered on course %', 
+                        NEW.student, NEW.course;
 	END IF;
 	
 	CREATE TEMP TABLE prereq AS 
