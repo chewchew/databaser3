@@ -1,4 +1,6 @@
 
+PRINT 'ello';
+
 INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150001','Branch1','Programme1');
 INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150002','Branch2','Programme2');
 INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150003','Branch3','Programme3');
@@ -63,5 +65,14 @@ SELECT * FROM CourseQueuePositions;
 -- only 3 students now wait for course 8
 
 
--- register on a finished course
-INSERT INTO Registrations (student, course) VALUES ('9008150001', 'TDA011');
+-- -- register on a finished course, should fail
+-- INSERT INTO Registrations (student, course) VALUES ('9008150001', 'TDA011');
+
+-- CREATE OR REPLACE FUNCTION ello() RETURNS VOID AS $$
+-- BEGIN
+--     RAISE NOTICE 'ello';
+-- END;
+-- $$ LANGUAGE 'plpqsql';
+
+
+-- CALL ello();

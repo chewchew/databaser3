@@ -223,8 +223,9 @@ BEGIN
 		        	(SELECT COUNT(*) FROM Registrations r 
 		        	WHERE r.course = OLD.course AND r.status = 'Registered') > 0 THEN
 				-- remove student from waiting list
-				DELETE FROM CourseQueuePositions cqp 
-				WHERE cqp.course = OLD.course AND cqp.position = 1;
+				DELETE FROM WaitingOn wo 
+				WHERE wo.course = OLD.course 
+                AND wo.student = _waitingStudent;
 		
 				-- register waiting student on course
 				RAISE NOTICE 'Registering waiting student % on course %', _waitingStudent, OLD.course;
