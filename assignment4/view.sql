@@ -10,7 +10,7 @@ CREATE VIEW StudentsFollowing AS
 -- For all students, all finished courses, along with their names, grades (grade 'U', '3', '4' or '5') and number of credits.
 DROP VIEW IF EXISTS FinishedCourses;
 CREATE VIEW FinishedCourses AS
-	SELECT Students.NIN AS StudentNIN, Students.name AS StudentName, Finished.grade, Courses.name AS Course, Courses.credits 
+	SELECT Students.NIN AS StudentNIN, Students.name AS StudentName, Finished.grade, Courses.code AS Course, Courses.credits 
 		FROM Students JOIN Finished ON Students.NIN = Finished.student 
 			JOIN Courses ON Finished.course = Courses.code;
 
