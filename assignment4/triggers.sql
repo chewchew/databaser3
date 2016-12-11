@@ -197,7 +197,7 @@ DECLARE
     _waitingStudent CHAR(10);
 BEGIN
 
-	IF NOT EXISTS (	SELECT * FROM Registrations r 
+	IF NOT EXISTS (	SELECT * FROM Registered r 
 				WHERE r.course = OLD.course AND r.student = OLD.student ) THEN
 			RAISE EXCEPTION 'Student % is not registered on course %', 
 							OLD.student, OLD.course;

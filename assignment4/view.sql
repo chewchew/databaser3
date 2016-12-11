@@ -126,5 +126,28 @@ CREATE VIEW PathToGraduation AS
 -- “1” in that queue, etc.).
 DROP VIEW IF EXISTS CourseQueuePositions;
 CREATE VIEW CourseQueuePositions AS
-	SELECT student, course, rank() over (ORDER BY date asc) AS position
+	SELECT course, student, rank() over (ORDER BY date asc) AS position
 	FROM WaitingOn;
+
+
+
+
+
+-- DROP VIEW IF EXISTS queue;
+-- CREATE VIEW queue AS 
+-- 	WITH RECURSIVE cte AS(
+-- 		SELECT course, student, date, 0::bigint as rank, ARRAY[]::bpchar[] as seen-- rank() over (ORDER BY date asc) AS position
+-- 		FROM WaitingOn w
+-- 			UNION ALL 
+-- 				SELECT w.course, w.student, w.date, rank() over (ORDER BY cte.date asc) as rank, seen || w.course as seen
+-- 				FROM cte
+-- 				INNER JOIN WaitingOn w ON cte.course = w.course AND cte.student = w.student
+-- 				AND NOT (w.course = ANY(seen)) 
+-- 	) 
+-- 	SELECT course, student, rank
+-- 	FROM cte
+-- 	WHERE seen <> '{}' ;
+
+-- 	--ORDER BY course, date asc;
+
+-- -- rank() over (ORDER BY w.date asc) as rank
