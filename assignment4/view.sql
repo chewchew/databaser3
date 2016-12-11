@@ -10,7 +10,7 @@ CREATE VIEW StudentsFollowing AS
 -- For all students, all finished courses, along with their names, grades (grade 'U', '3', '4' or '5') and number of credits.
 DROP VIEW IF EXISTS FinishedCourses;
 CREATE VIEW FinishedCourses AS
-	SELECT Students.NIN AS StudentNIN, Students.name AS StudentName, Finished.grade, Courses.name AS Course, Courses.credits 
+	SELECT Students.NIN AS StudentNIN, Students.name AS StudentName, Finished.grade, Courses.code AS Course, Courses.credits 
 		FROM Students JOIN Finished ON Students.NIN = Finished.student 
 			JOIN Courses ON Finished.course = Courses.code;
 
@@ -19,7 +19,7 @@ CREATE VIEW FinishedCourses AS
 DROP VIEW IF EXISTS Registrations;
 CREATE VIEW Registrations AS
 	SELECT Students.NIN AS Student, C.course AS Course, 
-		CASE WHEN Student IN (SELECT student FROM WaitingOn) THEN 'WaitingOn' ELSE 'Registered' END AS Status
+		CASE WHEN (Student,Course) IN (SELECT student,course FROM WaitingOn) THEN 'WaitingOn' ELSE 'Registered' END AS Status
 		FROM Students NATURAL JOIN
 			((SELECT * FROM Students JOIN Registered ON Students.NIN = Registered.student) AS A
 						NATURAL FULL JOIN (SELECT * FROM Students JOIN WaitingOn ON Students.NIN = WaitingOn.student) AS B) AS C;

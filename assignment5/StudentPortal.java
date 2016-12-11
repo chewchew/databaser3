@@ -164,16 +164,16 @@ public class StudentPortal
     {
         try {
             PreparedStatement stmt = 
-                conn.prepareStatement("INSERT INTO Registrations (student,course,status) VALUES (?,?,?)");
+                conn.prepareStatement("INSERT INTO Registrations (student,course) VALUES (?,?)");
             stmt.setString(1,student);
             stmt.setString(2,course);
-            stmt.setString(3,"registered");
 
             stmt.executeUpdate();
             
             System.out.println("Success");
         } catch (SQLException e) {
-            System.out.println("Failure");
+            System.out.println("Failure:");
+            System.out.println(e.getMessage());
         } 
     }
 
@@ -183,6 +183,18 @@ public class StudentPortal
     static void unregisterStudent(Connection conn, String student, String course)
             throws SQLException
     {
-        // TODO: Your implementation here
+        try {
+            PreparedStatement stmt = 
+                conn.prepareStatement("DELETE FROM Registrations WHERE student = ? AND course = ?");
+            stmt.setString(1,student);
+            stmt.setString(2,course);
+
+            stmt.executeUpdate();
+            
+            System.out.println("Success");
+        } catch (SQLException e) {
+            System.out.println("Failure:");
+            System.out.println(e.getMessage());
+        }
     }
 }
