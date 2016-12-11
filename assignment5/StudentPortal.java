@@ -14,8 +14,10 @@ import java.io.*;  // Reading user input.
 public class StudentPortal
 {
     /* TODO Here you should put your database name, username and password */
-    static final String USERNAME = "tda357_003";
-    static final String PASSWORD = "DKGBgwWY";
+    //static final String USERNAME = "tda357_003";
+    static final String USERNAME = "postgres";
+    //static final String PASSWORD = "DKGBgwWY";
+    static final String PASSWORD = "";
 
     /* Print command usage.
      * /!\ you don't need to change this function! */
@@ -33,7 +35,8 @@ public class StudentPortal
     {
         try {
             Class.forName("org.postgresql.Driver");
-            String url = "jdbc:postgresql://ate.ita.chalmers.se/";
+            //String url = "jdbc:postgresql://ate.ita.chalmers.se/";
+            String url = "jdbc:postgresql://localhost/uni";
             Properties props = new Properties();
             props.setProperty("user",USERNAME);
             props.setProperty("password",PASSWORD);
@@ -84,6 +87,7 @@ public class StudentPortal
         System.out.println(separator);
     }
 
+    // UNUSED CURRENTLY
     static boolean columnInTable(ResultSet rs, String column) throws SQLException{
         ResultSetMetaData rsmd = rs.getMetaData();
         System.out.println(""+rsmd.getColumnCount());
@@ -158,7 +162,19 @@ public class StudentPortal
     static void registerStudent(Connection conn, String student, String course)
             throws SQLException
     {
-        // TODO: Your implementation here
+        try {
+            PreparedStatement stmt = 
+                conn.prepareStatement("INSERT INTO Registrations (student,course,status) VALUES (?,?,?)");
+            stmt.setString(1,student);
+            stmt.setString(2,course);
+            stmt.setString(3,"registered");
+
+            stmt.executeUpdate();
+            
+            System.out.println("Success");
+        } catch (SQLException e) {
+            System.out.println("Failure");
+        } 
     }
 
     /* Unregister: Given a student id number and a course code, this function
