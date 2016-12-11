@@ -186,6 +186,25 @@ SELECT test_register_failed_prereq();
 
 
 --------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION test_register_while_waiting() RETURNS TEXT AS $$
+BEGIN
+
+RAISE NOTICE '<--------------------------- New Test --------------------------->';
+RAISE NOTICE '--> Attempt to register while in the waiting list';
+    INSERT INTO Registrations (student, course) VALUES ('9008150008', 'TDA008'); 
+    RETURN 'Fail';
+EXCEPTION 
+    WHEN raise_exception THEN 
+        RAISE NOTICE 'Caught exception';
+        RAISE NOTICE 'Student was unable to register while waiting';
+        RETURN 'Done';
+
+END
+$$ LANGUAGE 'plpgsql';
+SELECT test_register_while_waiting();
+
+
+--------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION test_unregister_twice() RETURNS TEXT AS $$
 BEGIN
 
