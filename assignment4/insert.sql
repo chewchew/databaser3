@@ -131,7 +131,7 @@ INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA014','3');
 INSERT INTO Finished (student,course,grade) VALUES ('9008150015','TDA007','4');
 INSERT INTO Finished (student,course,grade) VALUES ('9008150005','TDA013','4');
 
--- student 1 to 9 have finished TDA002, which is a prereq to TDA009
+-- student 1 to 10 have finished TDA002, which is a prereq to TDA009
 INSERT INTO Finished (student, course, grade) VALUES ('9008150001', 'TDA002', '3');
 INSERT INTO Finished (student, course, grade) VALUES ('9008150002', 'TDA002', '4');
 INSERT INTO Finished (student, course, grade) VALUES ('9008150003', 'TDA002', '4');
@@ -140,6 +140,8 @@ INSERT INTO Finished (student, course, grade) VALUES ('9008150005', 'TDA002', '5
 INSERT INTO Finished (student, course, grade) VALUES ('9008150006', 'TDA002', '5');
 INSERT INTO Finished (student, course, grade) VALUES ('9008150007', 'TDA002', '4');
 INSERT INTO Finished (student, course, grade) VALUES ('9008150008', 'TDA002', '5');
+INSERT INTO Finished (student, course, grade) VALUES ('9008150009', 'TDA002', '5');
+INSERT INTO Finished (student, course, grade) VALUES ('9008150010', 'TDA002', '3');
 
 -- Mandatory courses for programmes
 INSERT INTO ProgrammeMandatory (programme, course) VALUES ('Programme1', 'TDA011');

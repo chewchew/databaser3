@@ -200,6 +200,7 @@ RETURNS TRIGGER AS $$
 DECLARE
     _waitingStudent CHAR(10);
 BEGIN
+    RAISE NOTICE 'Want to unregister % from %', OLD.student, OLD.course;
     -- If student is on Waiting List, remove him/her and then done
     IF EXISTS ( SELECT * FROM WaitingOn w 
                 WHERE w.course = OLD.course AND w.student = OLD.student ) THEN
