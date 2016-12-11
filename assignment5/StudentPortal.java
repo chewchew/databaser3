@@ -164,10 +164,9 @@ public class StudentPortal
     {
         try {
             PreparedStatement stmt = 
-                conn.prepareStatement("INSERT INTO Registrations (student,course,status) VALUES (?,?,?)");
+                conn.prepareStatement("INSERT INTO Registrations (student,course) VALUES (?,?)");
             stmt.setString(1,student);
             stmt.setString(2,course);
-            stmt.setString(3,"registered");
 
             stmt.executeUpdate();
             
