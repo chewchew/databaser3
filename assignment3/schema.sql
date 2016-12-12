@@ -1,35 +1,29 @@
-DROP VIEW IF EXISTS HostingDepartmentProgramme;
-DROP VIEW IF EXISTS Hosting;
-DROP VIEW IF EXISTS NotHostingDepartmentProgramme;
-DROP VIEW IF EXISTS NotHosting;
-DROP VIEW IF EXISTS StudentsAttendingProgramme;
-
-DROP VIEW IF EXISTS PathToGraduation;
-DROP VIEW IF EXISTS UnreadMandatory;
-DROP VIEW IF EXISTS PassedCourses;
-DROP VIEW IF EXISTS Registrations;
-DROP VIEW IF EXISTS FinishedCourses;
-DROP VIEW IF EXISTS StudentsFollowing;
+DROP VIEW IF EXISTS PathToGraduation CASCADE;
+DROP VIEW IF EXISTS UnreadMandatory CASCADE;
+DROP VIEW IF EXISTS PassedCourses CASCADE;
+DROP VIEW IF EXISTS Registrations CASCADE;
+DROP VIEW IF EXISTS FinishedCourses CASCADE;
+DROP VIEW IF EXISTS StudentsFollowing CASCADE;
 
 -- in backwards order since psql complains
 -- about tables depending on other tables
-DROP TABLE IF EXISTS Finished;
-DROP TABLE IF EXISTS Registered;
-DROP TABLE IF EXISTS Recommended;
-DROP TABLE IF EXISTS BranchMandatory;
-DROP TABLE IF EXISTS ProgrammeMandatory;
-DROP TABLE IF EXISTS Prerequisite;
-DROP TABLE IF EXISTS WaitingOn;
-DROP TABLE IF EXISTS HasClass;
-DROP TABLE IF EXISTS Classifications;
-DROP TABLE IF EXISTS LimitedCourses;
-DROP TABLE IF EXISTS ChosenBranch;
-DROP TABLE IF EXISTS Students;
-DROP TABLE IF EXISTS Courses;
-DROP TABLE IF EXISTS Branches;
-DROP TABLE IF EXISTS HostedBy;
-DROP TABLE IF EXISTS Programmes;
-DROP TABLE IF EXISTS Departments;
+DROP TABLE IF EXISTS Finished CASCADE;
+DROP TABLE IF EXISTS Registered CASCADE;
+DROP TABLE IF EXISTS Recommended CASCADE;
+DROP TABLE IF EXISTS BranchMandatory CASCADE;
+DROP TABLE IF EXISTS ProgrammeMandatory CASCADE;
+DROP TABLE IF EXISTS Prerequisite CASCADE;
+DROP TABLE IF EXISTS WaitingOn CASCADE;
+DROP TABLE IF EXISTS HasClass CASCADE;
+DROP TABLE IF EXISTS Classifications CASCADE;
+DROP TABLE IF EXISTS LimitedCourses CASCADE;
+DROP TABLE IF EXISTS ChosenBranch CASCADE;
+DROP TABLE IF EXISTS Students CASCADE;
+DROP TABLE IF EXISTS Courses CASCADE;
+DROP TABLE IF EXISTS Branches CASCADE;
+DROP TABLE IF EXISTS HostedBy CASCADE;
+DROP TABLE IF EXISTS Programmes CASCADE;
+DROP TABLE IF EXISTS Departments CASCADE;
 
 CREATE TABLE Departments (
 	name			TEXT	NOT NULL PRIMARY KEY,
@@ -63,28 +57,32 @@ CREATE TABLE Students (
 );
 
 CREATE TABLE ChosenBranch (
-	student 		CHAR(10) 	NOT NULL REFERENCES Students(NIN) PRIMARY KEY,
-	branch 			TEXT 		NOT NULL,
-	programme 		TEXT 		NOT NULL
+    student         CHAR(10)    NOT NULL REFERENCES Students(NIN) PRIMARY KEY,
+    branch          TEXT        NOT NULL,
+    programme       TEXT        NOT NULL,
+    FOREIGN KEY (branch,programme) REFERENCES Branches(name,programme)
 );
 
+--------------------------------------------------------------------------------
 -- This trigger function does:
 -- - check that a chosen branch actually belong to the program the student
 --   is enrolled in.
+--------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION checkBranchInProgramme() 
 RETURNS TRIGGER AS $$
 BEGIN
-	IF NEW.branch IN (SELECT Branches.name FROM Branches WHERE Branches.programme = NEW.programme) THEN
-		RETURN NEW;
-	ELSE
-		RAISE 'Branch -> % not in programme -> %', NEW.branch,New.programme;
-	END IF;
-	RETURN NEW;
+    IF NEW.programme <> (SELECT programme FROM Students WHERE NIN = NEW.student)
+    THEN
+        RAISE EXCEPTION 'Branch -> % not in programme -> %', NEW.branch,New.programme;
+    END IF;
+    RETURN NEW;
 END
 $$ LANGUAGE 'plpgsql';
 
+DROP TRIGGER IF EXISTS branchInProgramme ON ChosenBranch;
 CREATE TRIGGER branchInProgramme BEFORE INSERT ON ChosenBranch
-	FOR EACH ROW EXECUTE PROCEDURE checkBranchInProgramme();
+    FOR EACH ROW EXECUTE PROCEDURE checkBranchInProgramme();
+    
 
 CREATE TABLE Courses (
 	code		CHAR(6) NOT NULL PRIMARY KEY,
