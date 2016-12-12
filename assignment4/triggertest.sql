@@ -100,7 +100,7 @@ BEGIN
 
 RAISE NOTICE '<--------------------------- New Test --------------------------->';
 RAISE NOTICE '--> Have student attempt to choose branch from another programme';    
-    INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150015','Branch2','Programme1');
+    INSERT INTO ChosenBranch (student,branch,programme) VALUES ('9008150015','Branch2','Programme2');
     RETURN 'Fail';
 EXCEPTION 
     WHEN raise_exception THEN 

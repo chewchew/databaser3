@@ -6,6 +6,8 @@
 CREATE OR REPLACE FUNCTION checkBranchInProgramme() 
 RETURNS TRIGGER AS $$
 BEGIN
+
+    --RAISE NOTICE '%', (SELECT programme FROM Students WHERE NIN = NEW.student);
 	IF NEW.programme <> (SELECT programme FROM Students WHERE NIN = NEW.student)
 	THEN
 		RAISE EXCEPTION 'Branch -> % not in programme -> %', NEW.branch,New.programme;
