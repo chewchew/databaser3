@@ -141,7 +141,7 @@ INSERT INTO Finished (student, course, grade) VALUES ('9008150006', 'TDA002', '5
 INSERT INTO Finished (student, course, grade) VALUES ('9008150007', 'TDA002', '4');
 INSERT INTO Finished (student, course, grade) VALUES ('9008150008', 'TDA002', '5');
 INSERT INTO Finished (student, course, grade) VALUES ('9008150009', 'TDA002', '5');
-INSERT INTO Finished (student, course, grade) VALUES ('9008150010', 'TDA002', '3');
+--INSERT INTO Finished (student, course, grade) VALUES ('9008150010', 'TDA002', '3');
 
 -- Mandatory courses for programmes
 INSERT INTO ProgrammeMandatory (programme, course) VALUES ('Programme1', 'TDA011');

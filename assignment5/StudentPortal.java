@@ -15,9 +15,9 @@ public class StudentPortal
 {
     /* TODO Here you should put your database name, username and password */
     //static final String USERNAME = "tda357_003";
-    static final String USERNAME = "postgres";
+    static final String USERNAME = "andreas";
     //static final String PASSWORD = "DKGBgwWY";
-    static final String PASSWORD = "";
+    static final String PASSWORD = "bigbang";
 
     /* Print command usage.
      * /!\ you don't need to change this function! */
@@ -45,6 +45,10 @@ public class StudentPortal
             String student = args[0]; // This is the identifier for the student.
 
             Console console = System.console();
+
+            
+            System.out.println(console);
+            
             usage();
             System.out.println("Welcome!");
             while(true) {
@@ -72,19 +76,25 @@ public class StudentPortal
         }
     }
 
-    static void printColumns(ResultSet rs, String[] columns, 
+    /*
+        Print the column the given resultset with the given columnames.
+    */
+    static void printColumns(ResultSet rs, String[] columns, String[] labeling, 
         boolean indent, String separator, boolean printColumn) throws SQLException {
-        String tab;
-        if (indent) {
-            tab = "\t";
-        } else {
-            tab = "";
-        }
+        String tab, column, label;
+        tab = indent? "\t":"";
+
         for (int i = 0; i < columns.length; i++) {
-            String column = columns[i];
-            System.out.println(tab + (printColumn ? column + ": " : "") + rs.getString(column));
+            column = columns[i];
+            label = labeling[i];
+            System.out.println(tab + (printColumn ? label + ": " : "") + rs.getString(column));
         }
         System.out.println(separator);
+    }
+
+    static void printColumns(ResultSet rs, String[] columns, 
+        boolean indent, String separator, boolean printColumn) throws SQLException {
+        printColumns(rs, columns, columns, indent, separator, printColumn);
     }
 
     // UNUSED CURRENTLY
@@ -99,18 +109,27 @@ public class StudentPortal
         return false;
     }
 
+    /*
+        Execute and print a query
+    */
     static void getInformationHelper(Connection conn, String student, 
-        String query, String[] columns, boolean indent, String separator, boolean printColumn) throws SQLException {
+        String query, String[] columns, String[] labeling, boolean indent, String separator, boolean printColumn) throws SQLException {
         
         PreparedStatement stmt = 
                 conn.prepareStatement(query);
         stmt.setString(1, student);
         ResultSet rs = stmt.executeQuery();
         while(rs.next()){
-            printColumns(rs, columns, indent, separator, printColumn);
+            printColumns(rs, columns, labeling, indent, separator, printColumn);
         }
         stmt.close();
     }
+
+    static void getInformationHelper(Connection conn, String student, 
+        String query, String[] columns, boolean indent, String separator, boolean printColumn) throws SQLException {
+        getInformationHelper(conn, student, query, columns, columns, indent, separator, printColumn);
+    }
+
     /* Given a student identification number, ths function should print
      * - the name of the student, the students national identification number
      *   and their issued login name (something similar to a CID)
@@ -133,26 +152,49 @@ public class StudentPortal
 
             System.out.println("Read Courses:");
             getInformationHelper(conn, student, 
-                "SELECT studentnin,course,grade "+
-                "FROM FinishedCourses WHERE studentnin = ?",
-                new String[]{"Course","Grade"}, true, "\n",true);
+                "SELECT * "+
+                "FROM FinishedCourses f JOIN Courses c ON f.course = c.code "+
+                "WHERE studentnin = ?",
+                new String[]{"Course", "Name", "Grade"}, true, "\n",true);
             
             System.out.println("Registrations:");
             getInformationHelper(conn, student, 
-                "SELECT * FROM Registrations WHERE student = ?",
-                new String[]{"Course","Status"}, true, "\n",true);
+                "SELECT * "+
+                "FROM Registrations r JOIN Courses c ON r.course = c.code " +
+                "WHERE student = ? AND status = 'Registered'",
+                new String[]{"Course","Name","Status"}, true, "\n",true);
+
+            getInformationHelper(conn, student, 
+                "SELECT * "+
+                "FROM (Registrations r JOIN Courses c ON r.course = c.code) "+
+                "NATURAL JOIN CourseQueuePositions q "+
+                "WHERE student = ?",
+                new String[]{"Course","Name","Status","Position"}, true, "\n",true);
 
             System.out.println("Unread Mandatory Courses:");
             getInformationHelper(conn, student, 
-                "SELECT * FROM UnreadMandatory WHERE nin = ?",
-                new String[]{"Course"}, true, "\n",true);
+                "SELECT * "+
+                "FROM UnreadMandatory u JOIN Courses c ON u.course = c.code "+
+                "WHERE nin = ?",
+                new String[]{"Course", "Name"}, true, "\n",true);
+
+            System.out.println("Credits and Requirements:");
+            getInformationHelper(conn, student, 
+                "SELECT * "+
+                "FROM PathToGraduation "+
+                "WHERE nin = ?",
+                new String[]{"CollectedCredits","MathCredits","ResearchCredits","ReadSeminarCourses"},
+                new String[]{"Total Credits",
+                "Math Credits (Of Needed 20)", 
+                "Research Credits (Of Needed 10)",
+                "Number of Read Seminar Courses"}, true, "\n",true);            
 
             System.out.println("Graduation Status:");
             getInformationHelper(conn, student,
                 "SELECT graduation FROM PathToGraduation WHERE nin = ?",
                 new String[]{"Graduation"}, false, "",false);
         } catch (SQLException e) {
-            System.out.println(""+e);
+            System.out.println(e);
         }
     }
 
@@ -179,6 +221,12 @@ public class StudentPortal
 
     /* Unregister: Given a student id number and a course code, this function
      * should unregister the student from that course.
+
+        TODO: The delete statement will not execute if the where clause evaluates to false.
+                This means that deleting an unregisterd and unwaiting student will cause
+                a "success" printout. I don't quite know if this should be regarded
+                as intentional behaviour.
+
      */
     static void unregisterStudent(Connection conn, String student, String course)
             throws SQLException

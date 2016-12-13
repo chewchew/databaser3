@@ -261,12 +261,3 @@ INSERT INTO HasClass (course,class) VALUES ('TDA005','Robotics');
 INSERT INTO HasClass (course,class) VALUES ('TDA005','AI');
 INSERT INTO HasClass (course,class) VALUES ('TDA015','Math');
 INSERT INTO HasClass (course,class) VALUES ('TDA015','Research');
-
-
-
--- SELECT * FROM Departments;
--- SELECT * FROM Programmes;
--- SELECT * FROM HostedBy;
--- SELECT * FROM Branches;
--- SELECT * FROM Students;
--- SELECT * FROM Courses;
