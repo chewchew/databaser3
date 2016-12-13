@@ -14,10 +14,10 @@ import java.io.*;  // Reading user input.
 public class StudentPortal
 {
     /* TODO Here you should put your database name, username and password */
-    //static final String USERNAME = "tda357_003";
-    static final String USERNAME = "andreas";
-    //static final String PASSWORD = "DKGBgwWY";
-    static final String PASSWORD = "bigbang";
+    static final String USERNAME = "tda357_003";
+    // static final String USERNAME = "andreas";
+    static final String PASSWORD = "DKGBgwWY";
+    // static final String PASSWORD = "bigbang";
 
     /* Print command usage.
      * /!\ you don't need to change this function! */
@@ -35,8 +35,8 @@ public class StudentPortal
     {
         try {
             Class.forName("org.postgresql.Driver");
-            //String url = "jdbc:postgresql://ate.ita.chalmers.se/";
-            String url = "jdbc:postgresql://localhost/uni";
+            String url = "jdbc:postgresql://ate.ita.chalmers.se/";
+            //String url = "jdbc:postgresql://localhost/uni";
             Properties props = new Properties();
             props.setProperty("user",USERNAME);
             props.setProperty("password",PASSWORD);
@@ -211,7 +211,7 @@ public class StudentPortal
             stmt.setString(2,course);
 
             stmt.executeUpdate();
-            
+            stmt.close();           
             System.out.println("Success");
         } catch (SQLException e) {
             System.out.println("Failure:");
@@ -232,13 +232,29 @@ public class StudentPortal
             throws SQLException
     {
         try {
+            PreparedStatement check =
+                conn.prepareStatement("SELECT * FROM Registrations WHERE student = ? AND course = ?");
+            check.setString(1,student);
+            check.setString(2,course);
+            boolean exists = false;
+            ResultSet rs = check.executeQuery();
+            while(rs.next()) {
+                exists = true;
+                break;
+            }
+            if (!exists) {
+                throw new SQLException("Student is not waiting for or registered on that course!");
+            }
+            check.close();
+
             PreparedStatement stmt = 
                 conn.prepareStatement("DELETE FROM Registrations WHERE student = ? AND course = ?");
             stmt.setString(1,student);
             stmt.setString(2,course);
 
             stmt.executeUpdate();
-            
+            stmt.close();
+
             System.out.println("Success");
         } catch (SQLException e) {
             System.out.println("Failure:");
