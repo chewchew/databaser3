@@ -15,9 +15,7 @@ public class StudentPortal
 {
     /* TODO Here you should put your database name, username and password */
     static final String USERNAME = "tda357_003";
-    // static final String USERNAME = "andreas";
     static final String PASSWORD = "DKGBgwWY";
-    // static final String PASSWORD = "bigbang";
 
     /* Print command usage.
      * /!\ you don't need to change this function! */
@@ -36,7 +34,6 @@ public class StudentPortal
         try {
             Class.forName("org.postgresql.Driver");
             String url = "jdbc:postgresql://ate.ita.chalmers.se/";
-            //String url = "jdbc:postgresql://localhost/uni";
             Properties props = new Properties();
             props.setProperty("user",USERNAME);
             props.setProperty("password",PASSWORD);
@@ -221,12 +218,6 @@ public class StudentPortal
 
     /* Unregister: Given a student id number and a course code, this function
      * should unregister the student from that course.
-
-        TODO: The delete statement will not execute if the where clause evaluates to false.
-                This means that deleting an unregisterd and unwaiting student will cause
-                a "success" printout. I don't quite know if this should be regarded
-                as intentional behaviour.
-
      */
     static void unregisterStudent(Connection conn, String student, String course)
             throws SQLException
