@@ -152,7 +152,7 @@ public class StudentPortal
 
             System.out.println("Read Courses:");
             getInformationHelper(conn, student, 
-                "SELECT studentnin,course,c.name,grade "+
+                "SELECT * "+
                 "FROM FinishedCourses f JOIN Courses c ON f.course = c.code "+
                 "WHERE studentnin = ?",
                 new String[]{"Course", "Name", "Grade"}, true, "\n",true);
@@ -160,9 +160,16 @@ public class StudentPortal
             System.out.println("Registrations:");
             getInformationHelper(conn, student, 
                 "SELECT * "+
-                "FROM Registrations r JOIN Courses c ON r.course = c.code "+
+                "FROM Registrations r JOIN Courses c ON r.course = c.code " +
+                "WHERE student = ? AND status = 'Registered'",
+                new String[]{"Course","Name","Status"}, true, "\n",true);
+
+            getInformationHelper(conn, student, 
+                "SELECT * "+
+                "FROM (Registrations r JOIN Courses c ON r.course = c.code) "+
+                "NATURAL JOIN CourseQueuePositions q "+
                 "WHERE student = ?",
-                new String[]{"Course","Name", "Status"}, true, "\n",true);
+                new String[]{"Course","Name","Status","Position"}, true, "\n",true);
 
             System.out.println("Unread Mandatory Courses:");
             getInformationHelper(conn, student, 
