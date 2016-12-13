@@ -210,11 +210,11 @@ BEGIN
         RETURN OLD;
     END IF;
 
-	IF NOT EXISTS (	SELECT * FROM Registered r 
-				WHERE r.course = OLD.course AND r.student = OLD.student ) THEN
-			RAISE EXCEPTION 'Student % is not registered on course %', 
-							OLD.student, OLD.course;
-	END IF;
+	-- IF NOT EXISTS (	SELECT * FROM Registered r 
+	-- 			WHERE r.course = OLD.course AND r.student = OLD.student ) THEN
+	-- 		RAISE EXCEPTION 'Student % is not registered on course %', 
+	-- 						OLD.student, OLD.course;
+	-- END IF;
 	
 	-- Delete from underlying table
 	RAISE NOTICE 'Unregistering student % from course %', OLD.student, OLD.course;
